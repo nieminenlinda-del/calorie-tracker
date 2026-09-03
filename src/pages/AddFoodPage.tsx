@@ -77,7 +77,7 @@ export function AddFoodPage() {
 
       {tab === 'catalog' ? (
         selected ? (
-          <div>
+          <div className="template-card">
             <h2 className="h1">{selected.name_fi}</h2>
             <p className="lede">
               {selected.name_en}

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 
 export function Sheet({
   title,
@@ -9,9 +10,10 @@ export function Sheet({
   children: ReactNode;
   onClose: () => void;
 }) {
-  return (
+  const node = (
     <div className="sheet" role="dialog" aria-modal="true" aria-label={title}>
       <div className="sheet-card">
+        <div className="sheet-handle" aria-hidden />
         <div className="topbar">
           <h2 className="h1" style={{ fontSize: 20 }}>
             {title}
@@ -24,4 +26,6 @@ export function Sheet({
       </div>
     </div>
   );
+  const target = document.getElementById('overlay-root');
+  return target ? createPortal(node, target) : node;
 }

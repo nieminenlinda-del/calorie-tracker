@@ -11,8 +11,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <TrackerProvider>
-        <ToastProvider>
-          <div className="app-shell">
+        <div className="app-shell">
+          <ToastProvider>
             <Routes>
               <Route element={<Shell />}>
                 <Route path="/" element={<TodayPage />} />
@@ -21,8 +21,8 @@ export default function App() {
                 <Route path="/settings" element={<SettingsPage />} />
               </Route>
             </Routes>
-          </div>
-        </ToastProvider>
+          </ToastProvider>
+        </div>
       </TrackerProvider>
     </BrowserRouter>
   );
@@ -33,8 +33,11 @@ function Shell() {
   const hideNav = location.pathname.startsWith('/add');
   return (
     <>
-      <Outlet />
+      <div className="app-scroll">
+        <Outlet />
+      </div>
       {hideNav ? null : <BottomNav />}
+      <div id="overlay-root" />
     </>
   );
 }

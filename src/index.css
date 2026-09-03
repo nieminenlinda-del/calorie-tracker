@@ -68,14 +68,24 @@ a {
 
 .app-shell {
   width: min(100%, 430px);
-  min-height: 100dvh;
+  height: 100dvh;
   background: var(--paper);
   position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   box-shadow: 0 0 0 1px rgba(15, 61, 46, 0.06), var(--shadow);
 }
 
+.app-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 .page {
-  padding: 16px 16px calc(var(--nav-h) + 24px + env(safe-area-inset-bottom));
+  padding: 16px 16px 24px;
 }
 
 .page.page-add {
@@ -348,8 +358,6 @@ a {
 }
 
 .bottom-nav {
-  position: sticky;
-  bottom: 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
@@ -357,10 +365,7 @@ a {
   background: color-mix(in srgb, var(--paper) 88%, white);
   backdrop-filter: blur(12px);
   border-top: 1px solid var(--line);
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(100%, 430px);
+  flex-shrink: 0;
   z-index: 20;
 }
 
@@ -505,24 +510,35 @@ a {
 }
 
 .sheet {
-  position: fixed;
+  position: absolute;
   inset: 0;
   background: rgba(26, 24, 20, 0.45);
   display: flex;
   align-items: flex-end;
-  justify-content: center;
+  justify-content: stretch;
   z-index: 40;
 }
 
 .sheet-card {
-  width: min(100%, 430px);
-  background: var(--paper);
+  width: 100%;
+  max-height: min(90dvh, 640px);
+  overflow: auto;
+  background: var(--card);
   border-radius: 24px 24px 0 0;
   padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  box-shadow: var(--shadow);
+}
+
+.sheet-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 99px;
+  background: var(--line);
+  margin: 0 auto 10px;
 }
 
 .toast {
-  position: fixed;
+  position: absolute;
   left: 50%;
   bottom: calc(var(--nav-h) + 16px + env(safe-area-inset-bottom));
   transform: translateX(-50%);
