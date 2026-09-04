@@ -9,7 +9,7 @@ import { TrackerProvider } from './state/TrackerContext';
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       <TrackerProvider>
         <div className="app-shell">
           <ToastProvider>

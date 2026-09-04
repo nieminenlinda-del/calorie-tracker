@@ -2,7 +2,18 @@
 
 Phone-first PWA for daily food logging. Separate from the workout-program track. Finnish grocery staples, Helsinki calendar dates, local-only data.
 
+**Live app:** [https://nieminenlinda-del.github.io/calorie-tracker/](https://nieminenlinda-del.github.io/calorie-tracker/)
+
 Phase 1 does **not** include barcode scanning, Open Food Facts, or social features.
+
+## Install on iPhone
+
+1. Open the live URL in **Safari** (not Chrome or in-app browsers).
+2. Tap the **Share** button (square with an arrow).
+3. Scroll and tap **Add to Home Screen**.
+4. Tap **Add**. Ravinto appears on the home screen and opens full-screen.
+
+Data stays on this iPhone (IndexedDB). The app works offline after the first load.
 
 ## Defaults
 
@@ -18,7 +29,7 @@ npm install
 npm run dev
 ```
 
-Open the printed local URL on your phone (same Wi‑Fi) or in a mobile viewport. Install via the browser “Add to Home Screen” prompt — the app works offline after the first load.
+The Vite `base` is `/calorie-tracker/`, so open `http://<your-ip>:5173/calorie-tracker/` (same Wi‑Fi) or that path in a mobile viewport. Production deploys from `main` via GitHub Actions to GitHub Pages.
 
 ```bash
 npm test
