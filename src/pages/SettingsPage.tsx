@@ -126,6 +126,10 @@ export function SettingsPage() {
       <h2 className="h1" style={{ fontSize: 20, marginTop: 28 }}>
         Tuonnit
       </h2>
+      <p className="lede">
+        Apple Health -vienti (zip/xml) tai iOS Shortcuts JSON iCloud Drivesta. Molemmat kirjoittavat
+        samaan <code>linda-health</code>-tietokantaan.
+      </p>
       <ActiveEnergyCard history={energyHistory} showImport showHistory />
     </div>
   );

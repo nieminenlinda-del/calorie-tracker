@@ -37,6 +37,25 @@ export const healthSamplesRepo = {
     return { inserted, duplicates };
   },
 
+  /** Latest-wins write used by Shortcuts JSON sync (daily file overwrite). */
+  async upsertMany(samples: HealthSample[]): Promise<{ inserted: number; updated: number }> {
+    const db = await getHealthDb();
+    let inserted = 0;
+    let updated = 0;
+    for (let i = 0; i < samples.length; i += SAMPLE_BATCH) {
+      const chunk = samples.slice(i, i + SAMPLE_BATCH);
+      const tx = db.transaction('health_samples', 'readwrite');
+      for (const sample of chunk) {
+        const existing = await tx.store.get(sample.id);
+        await tx.store.put(sample);
+        if (existing) updated += 1;
+        else inserted += 1;
+      }
+      await tx.done;
+    }
+    return { inserted, updated };
+  },
+
   async getByType(type: string): Promise<HealthSample[]> {
     const db = await getHealthDb();
     return db.getAllFromIndex('health_samples', 'by-type', type);

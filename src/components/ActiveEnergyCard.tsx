@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { formatKcal } from '../domain/macros';
 import { formatAdjustmentHint } from '../domain/energyTarget';
 import { importHealthFile } from '../health/importHealth';
+import { ingestShortcutFile, isShortcutJsonFile } from '../health/importShortcutJson';
 import { ingestMfpNutritionCsv } from '../health/mfp';
 import { trainingDayLabel } from '../health/trainingDay';
 import type { DailyActiveEnergy, IngestProgress } from '../health/types';
@@ -21,6 +22,7 @@ export function ActiveEnergyCard({
   const { date, targets, dailyEnergy, refresh } = useTracker();
   const toast = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
+  const shortcutInputRef = useRef<HTMLInputElement>(null);
   const mfpInputRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState<IngestProgress | null>(null);
   const [busy, setBusy] = useState(false);
@@ -57,8 +59,31 @@ export function ActiveEnergyCard({
     }
   }
 
+  async function onShortcutFile(file: File | undefined) {
+    if (!file) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await ingestShortcutFile(file);
+      await refresh();
+      toast(`Shortcuts tuotu: ${result.days} päivää`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Tuonti epäonnistui';
+      setError(message);
+      toast(message);
+    } finally {
+      setBusy(false);
+      if (shortcutInputRef.current) shortcutInputRef.current.value = '';
+    }
+  }
+
   async function onFile(file: File | undefined) {
     if (!file) return;
+    if (isShortcutJsonFile(file)) {
+      await onShortcutFile(file);
+      if (inputRef.current) inputRef.current.value = '';
+      return;
+    }
     setBusy(true);
     setError(null);
     setProgress({ scanned: 0, inserted: 0, duplicates: 0 });
@@ -116,7 +141,7 @@ export function ActiveEnergyCard({
           <input
             ref={inputRef}
             type="file"
-            accept=".zip,.xml,application/zip,text/xml,application/xml"
+            accept=".zip,.xml,.json,application/zip,text/xml,application/xml,application/json"
             hidden
             onChange={(event) => void onFile(event.target.files?.[0])}
           />
@@ -127,6 +152,21 @@ export function ActiveEnergyCard({
             onClick={() => inputRef.current?.click()}
           >
             {busy ? 'Tuodaan…' : 'Tuo Apple Health -vienti'}
+          </button>
+          <input
+            ref={shortcutInputRef}
+            type="file"
+            accept=".json,application/json"
+            hidden
+            onChange={(event) => void onShortcutFile(event.target.files?.[0])}
+          />
+          <button
+            type="button"
+            className="ghost"
+            disabled={busy}
+            onClick={() => shortcutInputRef.current?.click()}
+          >
+            {busy ? 'Tuodaan…' : 'Tuo Shortcuts JSON'}
           </button>
           <input
             ref={mfpInputRef}
@@ -148,8 +188,9 @@ export function ActiveEnergyCard({
           ) : null}
           {error ? <p className="health-error">{error}</p> : null}
           <p className="muted">
-            Health: export.zip tai export.xml. Sama <code>linda-health</code>-tietokanta kuin
-            Linda Liftissä — tuo kerran jommasta kummasta.
+            Shortcuts: iCloud Drive → Linda Health → <code>linda-health-shortcut.json</code> (päivittäinen
+            synkka). Health-vienti: export.zip tai export.xml. Sama <code>linda-health</code>
+            -tietokanta kuin Linda Liftissä — tuo kerran jommasta kummasta.
           </p>
           <p className="muted">
             MFP: <code>nutrition.csv</code> (ateriataso). Tuo uudestaan korvaa aiemmat MFP-rivit
