@@ -4,23 +4,41 @@
   <!ATTLIST HealthData locale CDATA #REQUIRED>
   <!ELEMENT Record EMPTY>
   <!ATTLIST Record type CDATA #REQUIRED sourceName CDATA #IMPLIED unit CDATA #IMPLIED value CDATA #IMPLIED startDate CDATA #IMPLIED endDate CDATA #IMPLIED>
-  <!ELEMENT Workout (MetadataEntry*)>
+  <!ELEMENT Workout (MetadataEntry*, WorkoutEvent*)>
   <!ATTLIST Workout workoutActivityType CDATA #REQUIRED sourceName CDATA #IMPLIED totalEnergyBurned CDATA #IMPLIED totalEnergyBurnedUnit CDATA #IMPLIED startDate CDATA #IMPLIED endDate CDATA #IMPLIED>
+  <!ELEMENT ActivitySummary EMPTY>
+  <!ATTLIST ActivitySummary dateComponents CDATA #REQUIRED activeEnergyBurned CDATA #IMPLIED activeEnergyBurnedUnit CDATA #IMPLIED>
 ]>
 <HealthData locale="en_FI">
   <ExportDate value="2026-09-04 08:00:00 +0300"/>
   <Me HKCharacteristicTypeIdentifierBiologicalSex="HKBiologicalSexFemale"/>
-  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Linda's Apple Watch" sourceVersion="11.0" unit="kcal" creationDate="2026-09-01 08:00:01 +0300" startDate="2026-09-01 08:00:00 +0300" endDate="2026-09-01 08:05:00 +0300" value="12.5"/>
-  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Linda's Apple Watch" sourceVersion="11.0" unit="kcal" creationDate="2026-09-01 08:00:01 +0300" startDate="2026-09-01 08:00:00 +0300" endDate="2026-09-01 08:05:00 +0300" value="12.5"/>
-  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="iPhone" unit="kcal" creationDate="2026-09-01 08:00:02 +0300" startDate="2026-09-01 08:00:00 +0300" endDate="2026-09-01 08:05:00 +0300" value="8.0"/>
-  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Linda's Apple Watch" unit="kcal" startDate="2026-09-01 18:00:00 +0300" endDate="2026-09-01 18:30:00 +0300" value="350"/>
-  <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Linda's Apple Watch" unit="count/min" startDate="2026-09-01 18:00:00 +0300" endDate="2026-09-01 18:00:00 +0300" value="142"/>
-  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Linda's Apple Watch" unit="kJ" startDate="2026-09-02 12:00:00 +0300" endDate="2026-09-02 12:20:00 +0300" value="418.4"/>
-  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Linda's Apple Watch" unit="kcal" startDate="2026-09-03 07:15:00 +0300" endDate="2026-09-03 07:45:00 +0300" value="220.4"/>
-  <Workout workoutActivityType="HKWorkoutActivityTypeTraditionalStrengthTraining" duration="45" durationUnit="min" totalEnergyBurned="312" totalEnergyBurnedUnit="kcal" sourceName="Linda's Apple Watch" startDate="2026-09-01 18:00:00 +0300" endDate="2026-09-01 18:45:00 +0300">
-    <MetadataEntry key="HKExternalUUID" value="workout-abc"/>
+  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Linda’s Apple Watch" sourceVersion="11.6.1" unit="kcal" creationDate="2026-09-01 08:00:05 +0300" startDate="2026-09-01 08:00:00 +0300" endDate="2026-09-01 08:01:00 +0300" value="1.215"/>
+  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Linda’s Apple Watch" unit="kcal" startDate="2026-09-01 08:01:00 +0300" endDate="2026-09-01 08:02:00 +0300" value="1.215"/>
+  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Linda’s Apple Watch" unit="kcal" startDate="2026-09-01 08:01:00 +0300" endDate="2026-09-01 08:02:00 +0300" value="1.215"/>
+  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Polar Beat" unit="kcal" startDate="2026-09-01 18:00:00 +0300" endDate="2026-09-01 18:05:00 +0300" value="12.4"/>
+  <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Linda’s Apple Watch" unit="count/min" startDate="2026-09-01 18:00:00 +0300" endDate="2026-09-01 18:00:00 +0300" value="142"/>
+  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Linda’s Apple Watch" unit="kJ" startDate="2026-09-02 12:00:00 +0300" endDate="2026-09-02 12:20:00 +0300" value="418.4"/>
+  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Linda’s Apple Watch" unit="kcal" startDate="2026-09-03 07:15:00 +0300" endDate="2026-09-03 07:45:00 +0300" value="220.4"/>
+  <Workout
+    workoutActivityType="HKWorkoutActivityTypeTraditionalStrengthTraining"
+    duration="55.218"
+    durationUnit="min"
+    totalEnergyBurned="312.5"
+    totalEnergyBurnedUnit="kcal"
+    sourceName="Polar Beat"
+    sourceVersion="6.25.0"
+    creationDate="2026-09-01 18:56:00 +0300"
+    startDate="2026-09-01 18:00:00 +0300"
+    endDate="2026-09-01 18:55:13 +0300">
+    <MetadataEntry key="HKExternalUUID" value="polar-workout-abc"/>
+    <WorkoutEvent type="HKWorkoutEventTypePause" date="2026-09-01 18:20:00 +0300" duration="1.5" durationUnit="min"/>
   </Workout>
-  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Linda's Apple Watch" unit="kcal" startDate="2026-09-01 18:10:00 +0300" endDate="2026-09-01 18:20:00 +0300" value="40">
-    <MetadataEntry key="HKWorkoutActivityId" value="workout-abc"/>
-  </Record>
+  <ActivitySummary dateComponents="2026-09-01" activeEnergyBurned="455.96" activeEnergyBurnedGoal="500" activeEnergyBurnedUnit="kcal" appleExerciseTime="55" appleExerciseTimeGoal="30" appleStandHours="12" appleStandHoursGoal="12" />
+  <ActivitySummary
+    dateComponents="2026-09-02"
+    activeEnergyBurned="180.5"
+    activeEnergyBurnedGoal="500"
+    activeEnergyBurnedUnit="kcal"
+    appleExerciseTime="8"
+    appleStandHours="10" />
 </HealthData>

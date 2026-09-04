@@ -4,8 +4,8 @@ export function toKcal(value: number, unit: string): number {
   return value;
 }
 
-export function roundKcal1(value: number): number {
-  return Math.round(value * 10) / 10;
+export function roundActiveKcal(value: number): number {
+  return Math.round(value * 100) / 100;
 }
 
 export function isWatchSource(sourceName: string): boolean {

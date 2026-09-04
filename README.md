@@ -56,7 +56,7 @@ Ravinto and Linda Lift both read/write IndexedDB **`linda-health`**:
 - `health_samples` — `{ id, type, sourceName, unit, value, startDate, endDate, workoutId? }`
 - `daily_active_energy` — `{ date, active_kcal, sources[] }` keyed by `YYYY-MM-DD` (`Europe/Helsinki`)
 
-Kost can call `getDailyActiveEnergy(date)` and `isTrainingDay(date)` to join active energy to training vs rest days. There is no real Health export in this repo — tests use synthetic `src/health/fixtures/export.xml` only.
+Kost can call `getDailyActiveEnergy(date)` and `isTrainingDay(date)` to join active energy to training vs rest days. Daily totals prefer `<ActivitySummary>` `activeEnergyBurned` when the export includes it (Health already merges Watch + Polar Beat). Tests use synthetic `src/health/fixtures/export.xml` snippets matching the real export (kcal `1.215` samples, `+0300` dates, multi-line Polar workouts, ActivitySummary `455.96`). Import streams zip/xml so a ~675MB `export.xml` is not loaded as one string; GPX routes are ignored.
 
 MyFitnessPal `nutrition.csv` import writes meal-level custom snapshots into `food_logs` (id `mfp:{date}:{slot}`). Re-import replaces those rows per day and leaves manual logs. Exercise/measurement CSVs are ignored.
 

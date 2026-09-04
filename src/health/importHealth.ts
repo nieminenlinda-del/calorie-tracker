@@ -1,27 +1,25 @@
-import { ingestHealthBytes } from './ingest';
+import { ingestHealthFile } from './ingest';
 import type { IngestProgress, IngestResult } from './types';
 
 export async function importHealthFile(
   file: File,
   onProgress?: (progress: IngestProgress) => void,
 ): Promise<IngestResult> {
-  const buffer = await file.arrayBuffer();
   if (typeof Worker === 'undefined') {
-    return ingestHealthBytes(new Uint8Array(buffer), onProgress);
+    return ingestHealthFile(file, onProgress);
   }
 
   try {
-    return await importViaWorker(buffer, onProgress);
+    return await importViaWorker(file, onProgress);
   } catch {
-    return ingestHealthBytes(new Uint8Array(buffer), onProgress);
+    return ingestHealthFile(file, onProgress);
   }
 }
 
 function importViaWorker(
-  buffer: ArrayBuffer,
+  file: File,
   onProgress?: (progress: IngestProgress) => void,
 ): Promise<IngestResult> {
-  const copy = new Uint8Array(buffer).slice();
   const worker = new Worker(new URL('./import.worker.ts', import.meta.url), {
     type: 'module',
   });
@@ -57,6 +55,6 @@ function importViaWorker(
       fail(new Error(event.message || 'Health-tuonti epäonnistui'));
     };
 
-    worker.postMessage({ buffer: copy.buffer }, [copy.buffer]);
+    worker.postMessage({ file });
   });
 }

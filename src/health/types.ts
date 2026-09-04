@@ -21,6 +21,13 @@ export interface DailyActiveEnergy {
   sources: string[];
 }
 
+/** Apple Health `<ActivitySummary>` — preferred source for daily_active_energy. */
+export interface ActivitySummaryRecord {
+  date: string;
+  activeEnergyBurned: number;
+  unit: string;
+}
+
 export interface IngestProgress {
   scanned: number;
   inserted: number;

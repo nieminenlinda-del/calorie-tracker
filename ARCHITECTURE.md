@@ -32,9 +32,9 @@ Apple Health lives in a **second** IndexedDB, name exactly `linda-health`, share
 | `health_samples` | Normalized samples `{ id, type, sourceName, unit, value, startDate, endDate, workoutId? }` |
 | `daily_active_energy` | Per Helsinki date `{ date, active_kcal, sources[] }` |
 
-Helpers: `getDailyActiveEnergy(date)`, `isTrainingDay(date)` (`src/health/`). Import parses `export.xml` (or a zip containing it) in a Worker, strips the HealthData DOCTYPE, and dedupes by sample `id`. Re-import from either app is safe.
+Helpers: `getDailyActiveEnergy(date)`, `isTrainingDay(date)` (`src/health/`). Import **streams** `export.xml` (or a zip containing it) in a Worker — DOCTYPE is stripped, GPX workout-routes are skipped, samples are deduped by `id`. Re-import from either app is safe.
 
-Daily active energy prefers Apple Watch samples over iPhone when both exist for the day, so totals are not double-counted. The 2050 kcal food target is unchanged unless the user turns on **Säädä treenipäivän mukaan** (+250 kcal on Mon/Tue/Thu/Fri = A/B/C/D).
+`daily_active_energy` prefers Apple Health `<ActivitySummary dateComponents activeEnergyBurned>` when present (Watch + Polar already merged by Health). If a day has no summary, fallback is Apple Watch ActiveEnergyBurned samples (not Watch+Polar sum). The 2050 kcal food target is unchanged unless the user turns on **Säädä treenipäivän mukaan** (+250 kcal on Mon/Tue/Thu/Fri = A/B/C/D).
 
 MyFitnessPal `nutrition.csv` is a separate import into `ravinto.food_logs` (stable ids `mfp:{date}:{slot}`), not `linda-health`.
 

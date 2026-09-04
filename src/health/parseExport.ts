@@ -1,15 +1,24 @@
-import { ACTIVE_ENERGY_TYPE, type HealthSample } from './types';
+import { ACTIVE_ENERGY_TYPE, type ActivitySummaryRecord, type HealthSample } from './types';
 import { appleDateToIso, parseAttributes, sampleId, stripDoctype } from './xml';
 
 const KEEP_RECORD_TYPES = new Set([ACTIVE_ENERGY_TYPE]);
+const TAG_NAMES = ['ActivitySummary', 'Record', 'Workout'] as const;
+type TagName = (typeof TAG_NAMES)[number];
+
+const MAX_BUFFER = 2_000_000;
+
+export interface HealthScanHandlers {
+  onSample: (sample: HealthSample) => void;
+  onSummary?: (summary: ActivitySummaryRecord) => void;
+}
 
 function isTagBoundary(char: string | undefined): boolean {
   return char === ' ' || char === '\t' || char === '\n' || char === '\r' || char === '/' || char === '>';
 }
 
-function nextTag(buffer: string, from: number): { name: 'Record' | 'Workout'; start: number } | null {
-  let best: { name: 'Record' | 'Workout'; start: number } | null = null;
-  for (const name of ['Record', 'Workout'] as const) {
+function nextTag(buffer: string, from: number): { name: TagName; start: number } | null {
+  let best: { name: TagName; start: number } | null = null;
+  for (const name of TAG_NAMES) {
     const token = `<${name}`;
     let idx = buffer.indexOf(token, from);
     while (idx !== -1) {
@@ -104,13 +113,27 @@ function fromWorkout(xml: string): HealthSample | null {
   };
 }
 
+function fromActivitySummary(xml: string): ActivitySummaryRecord | null {
+  const openEnd = xml.indexOf('>');
+  const attrs = parseAttributes(openEnd === -1 ? xml : xml.slice(0, openEnd + 1));
+  const date = attrs.dateComponents?.trim();
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+  const activeEnergyBurned = Number(attrs.activeEnergyBurned ?? 0);
+  if (!Number.isFinite(activeEnergyBurned)) return null;
+  return {
+    date,
+    activeEnergyBurned,
+    unit: attrs.activeEnergyBurnedUnit ?? 'kcal',
+  };
+}
+
 export class HealthExportScanner {
   private buffer = '';
   private skippingDoctype = true;
-  private readonly onSample: (sample: HealthSample) => void;
+  private readonly handlers: HealthScanHandlers;
 
-  constructor(onSample: (sample: HealthSample) => void) {
-    this.onSample = onSample;
+  constructor(handlers: HealthScanHandlers | ((sample: HealthSample) => void)) {
+    this.handlers = typeof handlers === 'function' ? { onSample: handlers } : handlers;
   }
 
   feed(chunk: string): void {
@@ -145,27 +168,55 @@ export class HealthExportScanner {
       }
       if (found.start > 0) this.buffer = this.buffer.slice(found.start);
       const end = findTagEnd(this.buffer, 0, found.name);
-      if (end === -1) return;
+      if (end === -1) {
+        if (this.buffer.length > MAX_BUFFER) {
+          this.buffer = this.buffer.slice(this.buffer.length - 64);
+        }
+        return;
+      }
       const xml = this.buffer.slice(0, end);
       this.buffer = this.buffer.slice(end);
+      if (found.name === 'ActivitySummary') {
+        const summary = fromActivitySummary(xml);
+        if (summary) this.handlers.onSummary?.(summary);
+        continue;
+      }
       const sample = found.name === 'Record' ? fromRecord(xml) : fromWorkout(xml);
-      if (sample) this.onSample(sample);
+      if (sample) this.handlers.onSample(sample);
     }
   }
 }
 
-export function parseHealthExportXml(xml: string): HealthSample[] {
+export function parseHealthExport(xml: string): {
+  samples: HealthSample[];
+  summaries: ActivitySummaryRecord[];
+} {
   const samples: HealthSample[] = [];
-  const scanner = new HealthExportScanner((sample) => samples.push(sample));
+  const summaries: ActivitySummaryRecord[] = [];
+  const scanner = new HealthExportScanner({
+    onSample: (sample) => samples.push(sample),
+    onSummary: (summary) => summaries.push(summary),
+  });
   scanner.feed(xml);
   scanner.end();
-  return samples;
+  return { samples, summaries };
 }
 
-export function parseHealthExportChunks(chunks: string[]): HealthSample[] {
+export function parseHealthExportXml(xml: string): HealthSample[] {
+  return parseHealthExport(xml).samples;
+}
+
+export function parseHealthExportChunks(chunks: string[]): {
+  samples: HealthSample[];
+  summaries: ActivitySummaryRecord[];
+} {
   const samples: HealthSample[] = [];
-  const scanner = new HealthExportScanner((sample) => samples.push(sample));
+  const summaries: ActivitySummaryRecord[] = [];
+  const scanner = new HealthExportScanner({
+    onSample: (sample) => samples.push(sample),
+    onSummary: (summary) => summaries.push(summary),
+  });
   for (const chunk of chunks) scanner.feed(chunk);
   scanner.end();
-  return samples;
+  return { samples, summaries };
 }

@@ -13,7 +13,7 @@ import {
 import { resetHealthDbConnection } from '../db/healthDatabase';
 import { aggregateDailyActiveEnergy } from './aggregate';
 import { ingestHealthBytes, ingestHealthXml } from './ingest';
-import { parseHealthExportChunks, parseHealthExportXml } from './parseExport';
+import { parseHealthExport, parseHealthExportChunks, parseHealthExportXml } from './parseExport';
 import { getTrainingDayCode, isTrainingDay, trainingDayLabel } from './trainingDay';
 import { ACTIVE_ENERGY_TYPE, HEALTH_DB_NAME } from './types';
 import { stripDoctype } from './xml';
@@ -22,6 +22,7 @@ import { getDailyActiveEnergy, healthSamplesRepo } from '../repos/healthRepo';
 
 const fixtureDir = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_XML = readFileSync(join(fixtureDir, 'fixtures/export.xml'), 'utf8');
+const WATCH = 'Linda\u2019s Apple Watch';
 
 async function deleteHealthDb(): Promise<void> {
   await resetHealthDbConnection();
@@ -45,16 +46,23 @@ describe('Apple Health export parse', () => {
     expect(stripped).toContain('<HealthData');
   });
 
-  it('parses Records and Workouts, skips heart rate, and dedupes identical samples', () => {
-    const samples = parseHealthExportXml(FIXTURE_XML);
+  it('parses Watch+Polar samples, multi-line Polar workouts, and ActivitySummary', () => {
+    const { samples, summaries } = parseHealthExport(FIXTURE_XML);
     const energy = samples.filter((sample) => sample.type === ACTIVE_ENERGY_TYPE);
     const workouts = samples.filter((sample) => sample.type.includes('Workout'));
-    expect(energy).toHaveLength(7);
-    expect(new Set(energy.map((sample) => sample.id)).size).toBe(6);
-    expect(workouts).toHaveLength(1);
+    expect(energy).toHaveLength(6);
+    expect(new Set(energy.map((sample) => sample.id)).size).toBe(5);
+    expect(energy.some((sample) => sample.value === 1.215 && sample.unit === 'kcal')).toBe(true);
+    expect(energy.some((sample) => sample.sourceName === 'Polar Beat')).toBe(true);
+    expect(energy.some((sample) => sample.sourceName === WATCH)).toBe(true);
     expect(samples.some((sample) => sample.type.includes('HeartRate'))).toBe(false);
-    expect(workouts[0]?.workoutId).toBe('workout-abc');
-    expect(energy.some((sample) => sample.workoutId === 'workout-abc')).toBe(true);
+    expect(workouts).toHaveLength(1);
+    expect(workouts[0]?.sourceName).toBe('Polar Beat');
+    expect(workouts[0]?.workoutId).toBe('polar-workout-abc');
+    expect(summaries).toEqual([
+      { date: '2026-09-01', activeEnergyBurned: 455.96, unit: 'kcal' },
+      { date: '2026-09-02', activeEnergyBurned: 180.5, unit: 'kcal' },
+    ]);
   });
 
   it('matches full-string parse when the xml is streamed in tiny chunks', () => {
@@ -62,28 +70,28 @@ describe('Apple Health export parse', () => {
     for (let i = 0; i < FIXTURE_XML.length; i += 11) {
       chunks.push(FIXTURE_XML.slice(i, i + 11));
     }
-    expect(parseHealthExportChunks(chunks)).toEqual(parseHealthExportXml(FIXTURE_XML));
+    expect(parseHealthExportChunks(chunks)).toEqual(parseHealthExport(FIXTURE_XML));
   });
 });
 
 describe('daily active energy', () => {
-  it('prefers Apple Watch over iPhone and converts kJ', () => {
+  it('falls back to Watch samples (not Polar+Watch sum) when no ActivitySummary', () => {
     const rows = aggregateDailyActiveEnergy(parseHealthExportXml(FIXTURE_XML));
     expect(rows).toEqual([
       {
         date: '2026-09-01',
-        active_kcal: 402.5,
-        sources: ["Linda's Apple Watch"],
+        active_kcal: 2.43,
+        sources: [WATCH],
       },
       {
         date: '2026-09-02',
         active_kcal: 100,
-        sources: ["Linda's Apple Watch"],
+        sources: [WATCH],
       },
       {
         date: '2026-09-03',
         active_kcal: 220.4,
-        sources: ["Linda's Apple Watch"],
+        sources: [WATCH],
       },
     ]);
   });
@@ -134,39 +142,58 @@ describe('Helsinki instants', () => {
 });
 
 describe('ingest into shared linda-health', () => {
-  it('writes health_samples + daily_active_energy and exposes getDailyActiveEnergy', async () => {
+  it('uses ActivitySummary for daily_active_energy when present', async () => {
     const first = await ingestHealthXml(FIXTURE_XML);
-    expect(first.inserted).toBe(7);
+    expect(first.inserted).toBe(6);
     expect(first.duplicates).toBe(1);
     expect(first.days).toBe(3);
 
     const tuesday = await getDailyActiveEnergy('2026-09-01');
     expect(tuesday).toEqual({
       date: '2026-09-01',
-      active_kcal: 402.5,
-      sources: ["Linda's Apple Watch"],
+      active_kcal: 455.96,
+      sources: [WATCH, 'Polar Beat'],
     });
-    expect((await getDailyActiveEnergy('2026-09-02'))?.active_kcal).toBe(100);
+    expect(isTrainingDay(tuesday!.date)).toBe(true);
+    expect(trainingDayLabel(tuesday!.date)).toBe('treeni B');
+
+    const rest = await getDailyActiveEnergy('2026-09-02');
+    expect(rest?.active_kcal).toBe(180.5);
+    expect(isTrainingDay(rest!.date)).toBe(false);
+    expect(trainingDayLabel(rest!.date)).toBe('lepo');
+
+    const thursday = await getDailyActiveEnergy('2026-09-03');
+    expect(thursday).toEqual({
+      date: '2026-09-03',
+      active_kcal: 220.4,
+      sources: [WATCH],
+    });
+    expect(trainingDayLabel(thursday!.date)).toBe('treeni C');
 
     const samples = await healthSamplesRepo.getByType(ACTIVE_ENERGY_TYPE);
-    expect(samples).toHaveLength(6);
+    expect(samples).toHaveLength(5);
 
     const second = await ingestHealthXml(FIXTURE_XML);
     expect(second.inserted).toBe(0);
     expect(second.duplicates).toBeGreaterThan(0);
-    expect((await getDailyActiveEnergy('2026-09-01'))?.active_kcal).toBe(402.5);
+    expect((await getDailyActiveEnergy('2026-09-01'))?.active_kcal).toBe(455.96);
   });
 
-  it('reads export.xml from a nested zip and ignores export_cda.xml', async () => {
+  it('streams export.xml from a zip and ignores gpx routes + export_cda.xml', async () => {
     const zip = zipSync({
-      'apple_health_export/export_cda.xml': strToU8('<not-health/>'),
+      'apple_health_export/workout-routes/route.gpx': strToU8(
+        '<?xml version="1.0"?><gpx>ignored</gpx>',
+      ),
+      'apple_health_export/export_cda.xml': strToU8('<ClinicalDocument/>'),
       'apple_health_export/export.xml': strToU8(FIXTURE_XML),
     });
     const xml = extractExportXml(zip);
     expect(new TextDecoder().decode(xml)).toContain('<HealthData');
+    expect(new TextDecoder().decode(xml)).not.toContain('<gpx>');
 
     const result = await ingestHealthBytes(zip);
-    expect(result.inserted).toBe(7);
+    expect(result.inserted).toBe(6);
+    expect((await getDailyActiveEnergy('2026-09-01'))?.active_kcal).toBe(455.96);
     expect((await getDailyActiveEnergy('2026-09-03'))?.active_kcal).toBe(220.4);
   });
 });

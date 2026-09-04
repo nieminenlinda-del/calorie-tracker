@@ -1,6 +1,11 @@
 import { helsinkiDateFromInstant } from '../domain/dates';
-import { ACTIVE_ENERGY_TYPE, type DailyActiveEnergy, type HealthSample } from './types';
-import { isWatchSource, roundKcal1, toKcal } from './units';
+import {
+  ACTIVE_ENERGY_TYPE,
+  type ActivitySummaryRecord,
+  type DailyActiveEnergy,
+  type HealthSample,
+} from './types';
+import { isWatchSource, roundActiveKcal, toKcal } from './units';
 
 export function sampleDay(sample: HealthSample): string {
   return helsinkiDateFromInstant(sample.startDate);
@@ -26,12 +31,24 @@ export function aggregateDailyActiveEnergy(samples: HealthSample[]): DailyActive
     const watch = list.filter((sample) => isWatchSource(sample.sourceName));
     const used = watch.length > 0 ? watch : list;
     const sources = [...new Set(used.map((sample) => sample.sourceName))];
-    const active_kcal = roundKcal1(
+    const active_kcal = roundActiveKcal(
       used.reduce((sum, sample) => sum + toKcal(sample.value, sample.unit), 0),
     );
     rows.push({ date, active_kcal, sources });
   }
   return rows.sort((a, b) => a.date.localeCompare(b.date));
+}
+
+export function dailyEnergyFromSummary(
+  summary: ActivitySummaryRecord,
+  sources: string[] = [],
+): DailyActiveEnergy {
+  const uniqueSources = [...new Set(sources)].sort((a, b) => a.localeCompare(b));
+  return {
+    date: summary.date,
+    active_kcal: roundActiveKcal(toKcal(summary.activeEnergyBurned, summary.unit)),
+    sources: uniqueSources.length > 0 ? uniqueSources : ['ActivitySummary'],
+  };
 }
 
 export function datesCoveredBy(samples: HealthSample[]): string[] {
