@@ -36,6 +36,8 @@ Helpers: `getDailyActiveEnergy(date)`, `isTrainingDay(date)` (`src/health/`). Im
 
 Daily active energy prefers Apple Watch samples over iPhone when both exist for the day, so totals are not double-counted. The 2050 kcal food target is unchanged unless the user turns on **Säädä treenipäivän mukaan** (+250 kcal on Mon/Tue/Thu/Fri = A/B/C/D).
 
+MyFitnessPal `nutrition.csv` is a separate import into `ravinto.food_logs` (stable ids `mfp:{date}:{slot}`), not `linda-health`.
+
 ## Dates
 
 Calendar days use `Europe/Helsinki` (`src/domain/dates.ts`). Logs key off `YYYY-MM-DD` in that zone so a late evening in Finland does not spill into the next UTC day.

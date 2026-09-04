@@ -58,6 +58,8 @@ Ravinto and Linda Lift both read/write IndexedDB **`linda-health`**:
 
 Kost can call `getDailyActiveEnergy(date)` and `isTrainingDay(date)` to join active energy to training vs rest days. There is no real Health export in this repo — tests use synthetic `src/health/fixtures/export.xml` only.
 
+MyFitnessPal `nutrition.csv` import writes meal-level custom snapshots into `food_logs` (id `mfp:{date}:{slot}`). Re-import replaces those rows per day and leaves manual logs. Exercise/measurement CSVs are ignored.
+
 ## Phase 2 (not in this release)
 
 Barcode scanning and Open Food Facts lookup. The catalog `Food` model already has room for brand and tags; a future `barcode` field and a remote food adapter can sit beside the existing repos without changing the log snapshot shape.

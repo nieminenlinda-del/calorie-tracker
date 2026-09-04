@@ -124,7 +124,7 @@ export function SettingsPage() {
       </div>
 
       <h2 className="h1" style={{ fontSize: 20, marginTop: 28 }}>
-        Apple Health
+        Tuonnit
       </h2>
       <ActiveEnergyCard history={energyHistory} showImport showHistory />
     </div>

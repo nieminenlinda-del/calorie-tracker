@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { formatKcal } from '../domain/macros';
 import { formatAdjustmentHint } from '../domain/energyTarget';
 import { importHealthFile } from '../health/importHealth';
+import { ingestMfpNutritionCsv } from '../health/mfp';
 import { trainingDayLabel } from '../health/trainingDay';
 import type { DailyActiveEnergy, IngestProgress } from '../health/types';
 import { targetsRepo } from '../repos';
@@ -20,6 +21,7 @@ export function ActiveEnergyCard({
   const { date, targets, dailyEnergy, refresh } = useTracker();
   const toast = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
+  const mfpInputRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState<IngestProgress | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +34,28 @@ export function ActiveEnergyCard({
     trainingLabel: label,
     adjusted: targets.adjust_for_training_day,
   });
+
+  async function onMfpFile(file: File | undefined) {
+    if (!file) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const text = await file.text();
+      const result = await ingestMfpNutritionCsv(text);
+      if (result.meals === 0) {
+        throw new Error('CSV:sta ei löytynyt aterioita. Käytä nutrition.csv-vientiä.');
+      }
+      await refresh();
+      toast(`MFP tuotu: ${result.meals} ateriaa, ${result.days} päivää`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Tuonti epäonnistui';
+      setError(message);
+      toast(message);
+    } finally {
+      setBusy(false);
+      if (mfpInputRef.current) mfpInputRef.current.value = '';
+    }
+  }
 
   async function onFile(file: File | undefined) {
     if (!file) return;
@@ -102,15 +126,34 @@ export function ActiveEnergyCard({
             disabled={busy}
             onClick={() => inputRef.current?.click()}
           >
-            {busy ? 'Tuodaan Health…' : 'Tuo Apple Health -vienti'}
+            {busy ? 'Tuodaan…' : 'Tuo Apple Health -vienti'}
+          </button>
+          <input
+            ref={mfpInputRef}
+            type="file"
+            accept=".csv,text/csv"
+            hidden
+            onChange={(event) => void onMfpFile(event.target.files?.[0])}
+          />
+          <button
+            type="button"
+            className="ghost"
+            disabled={busy}
+            onClick={() => mfpInputRef.current?.click()}
+          >
+            Tuo MyFitnessPal CSV
           </button>
           {progress ? (
             <p className="muted">Luetaan… {progress.scanned} näytettä</p>
           ) : null}
           {error ? <p className="health-error">{error}</p> : null}
           <p className="muted">
-            export.zip tai export.xml. Sama <code>linda-health</code>-tietokanta kuin Linda
-            Liftissä — tuo kerran jommasta kummasta.
+            Health: export.zip tai export.xml. Sama <code>linda-health</code>-tietokanta kuin
+            Linda Liftissä — tuo kerran jommasta kummasta.
+          </p>
+          <p className="muted">
+            MFP: <code>nutrition.csv</code> (ateriataso). Tuo uudestaan korvaa aiemmat MFP-rivit
+            siltä päivältä; omat lokit jäävät. Exercise/measurement-vientiä ei lueta.
           </p>
         </div>
       ) : null}

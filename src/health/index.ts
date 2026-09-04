@@ -1,3 +1,4 @@
+export { ingestMfpNutritionCsv } from './mfp';
 export { getDailyActiveEnergy, dailyActiveEnergyRepo, healthSamplesRepo } from '../repos/healthRepo';
 export { isTrainingDay, getTrainingDayCode, trainingDayLabel } from './trainingDay';
 export { importHealthFile } from './importHealth';
