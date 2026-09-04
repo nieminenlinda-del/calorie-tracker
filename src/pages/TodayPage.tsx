@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { ActiveEnergyCard } from '../components/ActiveEnergyCard';
 import { MealSection } from '../components/MealSection';
 import { MacroSummary } from '../components/MacroSummary';
 import { addDays, formatHelsinkiDate, isToday, previousDay } from '../domain/dates';
@@ -10,7 +11,8 @@ import { useTracker } from '../state/TrackerContext';
 import { useToast } from '../state/ToastContext';
 
 export function TodayPage() {
-  const { date, setDate, logs, foods, templates, targets, summary, refresh } = useTracker();
+  const { date, setDate, logs, foods, templates, displayTargets, summary, energyHistory, refresh } =
+    useTracker();
   const toast = useToast();
 
   const bySlot = useMemo(() => {
@@ -91,7 +93,9 @@ export function TodayPage() {
         </button>
       </div>
 
-      <MacroSummary summary={summary} targets={targets} />
+      <MacroSummary summary={summary} targets={displayTargets} />
+
+      <ActiveEnergyCard history={energyHistory.slice(0, 7)} showImport showHistory />
 
       <div className="quick-row">
         <button type="button" className="ghost" onClick={() => void copyYesterday()}>

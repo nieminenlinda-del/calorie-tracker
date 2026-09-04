@@ -99,6 +99,8 @@ export interface UserTargets {
   diet_flags: DietFlag[];
   timezone: typeof HELSINKI_TZ;
   updated_at: string;
+  /** When true, remaining kcal uses 2050+250 on Mon/Tue/Thu/Fri. Off by default. */
+  adjust_for_training_day: boolean;
 }
 
 export interface DailySummary extends Macros {

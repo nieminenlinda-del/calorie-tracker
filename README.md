@@ -45,8 +45,20 @@ npm run preview
 4. **Tallenna ateria** keeps the current meal as a reusable template. **Kopioi eilinen** / per-meal copy fills from yesterday.
 5. **Pika** is a manual quick-add (name + kcal + P/C/F).
 6. **Tavoitteet** edits the daily targets (defaults as above).
+7. **Apple Health**: Tänään / Tavoitteet can import `export.zip` or `export.xml`. Today’s active kcal and a small date → kcal → treeni\|lepo history show up after import. Optional toggle adds +250 kcal on training days (Mon/Tue/Thu/Fri = A/B/C/D) without overwriting the saved 2050 target.
 
-All of this is stored in IndexedDB in the browser. Clearing site data wipes the log.
+Food logging is stored in IndexedDB `ravinto`. Health samples use a **shared** IndexedDB named `linda-health` (same origin as [Linda Lift](https://nieminenlinda-del.github.io/workout-program/)). Import once from either app. Clearing site data wipes both.
+
+## Shared Health database
+
+Ravinto and Linda Lift both read/write IndexedDB **`linda-health`**:
+
+- `health_samples` — `{ id, type, sourceName, unit, value, startDate, endDate, workoutId? }`
+- `daily_active_energy` — `{ date, active_kcal, sources[] }` keyed by `YYYY-MM-DD` (`Europe/Helsinki`)
+
+Kost can call `getDailyActiveEnergy(date)` and `isTrainingDay(date)` to join active energy to training vs rest days. Daily totals prefer `<ActivitySummary>` `activeEnergyBurned` when the export includes it (Health already merges Watch + Polar Beat). Tests use synthetic `src/health/fixtures/export.xml` snippets matching the real export (kcal `1.215` samples, `+0300` dates, multi-line Polar workouts, ActivitySummary `455.96`). Import streams zip/xml so a ~675MB `export.xml` is not loaded as one string; GPX routes are ignored.
+
+MyFitnessPal `nutrition.csv` import writes meal-level custom snapshots into `food_logs` (id `mfp:{date}:{slot}`). Re-import replaces those rows per day and leaves manual logs. Exercise/measurement CSVs are ignored.
 
 ## Phase 2 (not in this release)
 

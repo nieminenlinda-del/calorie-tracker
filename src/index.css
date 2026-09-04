@@ -628,3 +628,85 @@ a {
   color: var(--ink-soft);
   font-size: 13px;
 }
+
+.health-card {
+  background: var(--card);
+  border-radius: 22px;
+  padding: 14px;
+  margin: 0 0 16px;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.health-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.health-kcal {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--pine);
+  line-height: 1.1;
+  margin-top: 4px;
+}
+
+.health-badge {
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--paper);
+}
+
+.health-badge.train {
+  background: var(--pine);
+  color: #f7f3ea;
+}
+
+.health-badge.rest {
+  color: var(--ink-soft);
+}
+
+.health-hint {
+  margin: 10px 0 12px;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+
+.health-error {
+  color: var(--berry);
+  font-size: 13px;
+  font-weight: 650;
+  margin: 0;
+}
+
+.health-history {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+  font-size: 13px;
+}
+
+.health-history th {
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 800;
+  padding: 0 0 6px;
+}
+
+.health-history td {
+  padding: 8px 8px 8px 0;
+  border-top: 1px solid var(--line);
+}
+
+.health-card code {
+  font-size: 12px;
+}
+
