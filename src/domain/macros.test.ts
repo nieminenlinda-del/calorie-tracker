@@ -17,6 +17,7 @@ const targets: UserTargets = {
   diet_flags: [...DEFAULT_DIET_FLAGS],
   timezone: 'Europe/Helsinki',
   updated_at: '2026-09-03T00:00:00.000Z',
+  adjust_for_training_day: false,
 };
 
 describe('scaleFoodMacros', () => {

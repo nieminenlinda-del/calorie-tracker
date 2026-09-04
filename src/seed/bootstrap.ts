@@ -1,4 +1,5 @@
 import { getDb } from '../db/database';
+import { getHealthDb } from '../db/healthDatabase';
 import { foodsRepo } from '../repos/foodsRepo';
 import { targetsRepo } from '../repos/targetsRepo';
 import { templatesRepo } from '../repos/templatesRepo';
@@ -27,4 +28,10 @@ export async function bootstrapDb(): Promise<void> {
 
   await targetsRepo.get();
   await db.put('meta', { key: 'seed_version', value: SEED_VERSION });
+
+  try {
+    await getHealthDb();
+  } catch (err) {
+    console.error('linda-health open failed', err);
+  }
 }

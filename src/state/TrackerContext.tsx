@@ -10,6 +10,7 @@ import {
 import { computeDailySummary } from '../domain/summary';
 import { filterCatalog } from '../domain/diet';
 import { helsinkiToday } from '../domain/dates';
+import { effectiveTargetsKcal } from '../domain/energyTarget';
 import type {
   DailySummary,
   Food,
@@ -17,7 +18,9 @@ import type {
   MealTemplate,
   UserTargets,
 } from '../domain/types';
+import type { DailyActiveEnergy } from '../health/types';
 import { foodsRepo, logsRepo, targetsRepo, templatesRepo } from '../repos';
+import { dailyActiveEnergyRepo, getDailyActiveEnergy } from '../repos/healthRepo';
 
 interface TrackerValue {
   date: string;
@@ -27,7 +30,10 @@ interface TrackerValue {
   logs: FoodLog[];
   templates: MealTemplate[];
   targets: UserTargets;
+  displayTargets: UserTargets;
   summary: DailySummary;
+  dailyEnergy: DailyActiveEnergy | undefined;
+  energyHistory: DailyActiveEnergy[];
   refresh: () => Promise<void>;
 }
 
@@ -39,6 +45,8 @@ export function TrackerProvider({ children }: { children: ReactNode }) {
   const [logs, setLogs] = useState<FoodLog[]>([]);
   const [templates, setTemplates] = useState<MealTemplate[]>([]);
   const [targets, setTargets] = useState<UserTargets | null>(null);
+  const [dailyEnergy, setDailyEnergy] = useState<DailyActiveEnergy | undefined>();
+  const [energyHistory, setEnergyHistory] = useState<DailyActiveEnergy[]>([]);
 
   const refresh = useCallback(async () => {
     const [nextFoods, nextLogs, nextTemplates, nextTargets] = await Promise.all([
@@ -51,6 +59,19 @@ export function TrackerProvider({ children }: { children: ReactNode }) {
     setLogs(nextLogs);
     setTemplates(nextTemplates);
     setTargets(nextTargets);
+
+    try {
+      const [energy, history] = await Promise.all([
+        getDailyActiveEnergy(date),
+        dailyActiveEnergyRepo.listRecent(14),
+      ]);
+      setDailyEnergy(energy);
+      setEnergyHistory(history);
+    } catch (err) {
+      console.error('health read failed', err);
+      setDailyEnergy(undefined);
+      setEnergyHistory([]);
+    }
   }, [date]);
 
   useEffect(() => {
@@ -59,6 +80,11 @@ export function TrackerProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<TrackerValue | null>(() => {
     if (!targets) return null;
+    const displayTargets = effectiveTargetsKcal(
+      targets,
+      date,
+      targets.adjust_for_training_day,
+    );
     return {
       date,
       setDate,
@@ -67,10 +93,13 @@ export function TrackerProvider({ children }: { children: ReactNode }) {
       logs,
       templates,
       targets,
-      summary: computeDailySummary(date, logs, targets),
+      displayTargets,
+      summary: computeDailySummary(date, logs, displayTargets),
+      dailyEnergy,
+      energyHistory,
       refresh,
     };
-  }, [date, foods, logs, refresh, targets, templates]);
+  }, [dailyEnergy, date, energyHistory, foods, logs, refresh, targets, templates]);
 
   if (!value) {
     return (

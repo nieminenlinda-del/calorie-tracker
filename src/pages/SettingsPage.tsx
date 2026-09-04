@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ActiveEnergyCard } from '../components/ActiveEnergyCard';
 import { DEFAULT_DIET_FLAGS, DEFAULT_TARGETS, type DietFlag } from '../domain/types';
 import { targetsRepo } from '../repos';
 import { useTracker } from '../state/TrackerContext';
@@ -15,7 +16,7 @@ const FLAG_LABELS: Record<DietFlag, string> = {
 };
 
 export function SettingsPage() {
-  const { targets, refresh } = useTracker();
+  const { targets, energyHistory, refresh } = useTracker();
   const toast = useToast();
   const [kcal, setKcal] = useState(targets.kcal);
   const [protein, setProtein] = useState(targets.protein);
@@ -28,7 +29,8 @@ export function SettingsPage() {
       <h1 className="h1">Tavoitteet</h1>
       <p className="lede">
         Oletuslukemat ovat 2050 kcal · 125 P · 265 H · 60 R. Voit muokata niitä; päivän jäljellä
-        -luvut päivittyvät heti.
+        -luvut päivittyvät heti. Treenipäivän +250 kcal on erillinen kytkin, se ei ylikirjoita
+        tätä lukemaa.
       </p>
 
       <label className="field">
@@ -111,6 +113,7 @@ export function SettingsPage() {
             await targetsRepo.save({
               ...DEFAULT_TARGETS,
               diet_flags: [...DEFAULT_DIET_FLAGS],
+              adjust_for_training_day: false,
             });
             await refresh();
             toast('Oletukset palautettu');
@@ -119,6 +122,11 @@ export function SettingsPage() {
           Palauta oletukset (2050 / 125 / 265 / 60)
         </button>
       </div>
+
+      <h2 className="h1" style={{ fontSize: 20, marginTop: 28 }}>
+        Apple Health
+      </h2>
+      <ActiveEnergyCard history={energyHistory} showImport showHistory />
     </div>
   );
 }

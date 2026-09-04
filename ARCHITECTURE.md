@@ -25,6 +25,17 @@ Daily totals are **computed** from `food_logs` (`src/domain/summary.ts`), not st
 
 Repos in `src/repos/` are the only modules that touch IndexedDB. UI never opens IDB directly.
 
+Apple Health lives in a **second** IndexedDB, name exactly `linda-health`, shared with Linda Lift (same GitHub Pages origin). Stores:
+
+| Store | Role |
+| --- | --- |
+| `health_samples` | Normalized samples `{ id, type, sourceName, unit, value, startDate, endDate, workoutId? }` |
+| `daily_active_energy` | Per Helsinki date `{ date, active_kcal, sources[] }` |
+
+Helpers: `getDailyActiveEnergy(date)`, `isTrainingDay(date)` (`src/health/`). Import parses `export.xml` (or a zip containing it) in a Worker, strips the HealthData DOCTYPE, and dedupes by sample `id`. Re-import from either app is safe.
+
+Daily active energy prefers Apple Watch samples over iPhone when both exist for the day, so totals are not double-counted. The 2050 kcal food target is unchanged unless the user turns on **Säädä treenipäivän mukaan** (+250 kcal on Mon/Tue/Thu/Fri = A/B/C/D).
+
 ## Dates
 
 Calendar days use `Europe/Helsinki` (`src/domain/dates.ts`). Logs key off `YYYY-MM-DD` in that zone so a late evening in Finland does not spill into the next UTC day.
