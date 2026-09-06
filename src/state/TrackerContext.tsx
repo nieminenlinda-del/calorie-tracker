@@ -19,6 +19,7 @@ import type {
   UserTargets,
 } from '../domain/types';
 import type { DailyActiveEnergy } from '../health/types';
+import { t } from '../i18n/locale';
 import { foodsRepo, logsRepo, targetsRepo, templatesRepo } from '../repos';
 import { dailyActiveEnergyRepo, getDailyActiveEnergy } from '../repos/healthRepo';
 
@@ -104,7 +105,7 @@ export function TrackerProvider({ children }: { children: ReactNode }) {
   if (!value) {
     return (
       <div className="loading">
-        <p>Ladataan…</p>
+        <p>{t('app.loading')}</p>
       </div>
     );
   }

@@ -1,3 +1,4 @@
+import { getLocale, t } from '../i18n/locale';
 import { ingestHealthFile } from './ingest';
 import type { IngestProgress, IngestResult } from './types';
 
@@ -52,9 +53,9 @@ function importViaWorker(
     };
 
     worker.onerror = (event) => {
-      fail(new Error(event.message || 'Health-tuonti epäonnistui'));
+      fail(new Error(event.message || t('health.healthImportFailed')));
     };
 
-    worker.postMessage({ file });
+    worker.postMessage({ file, locale: getLocale() });
   });
 }

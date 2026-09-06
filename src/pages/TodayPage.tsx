@@ -5,7 +5,8 @@ import { MealSection } from '../components/MealSection';
 import { MacroSummary } from '../components/MacroSummary';
 import { addDays, formatHelsinkiDate, isToday, previousDay } from '../domain/dates';
 import { applyTemplate, copyLogsToDate } from '../domain/logging';
-import { MEAL_SLOTS, MEAL_SLOT_LABELS, type MealSlot } from '../domain/types';
+import { MEAL_SLOTS, type MealSlot } from '../domain/types';
+import { mealSlotLabel, useLanguage } from '../i18n';
 import { logsRepo } from '../repos';
 import { useTracker } from '../state/TrackerContext';
 import { useToast } from '../state/ToastContext';
@@ -14,6 +15,7 @@ export function TodayPage() {
   const { date, setDate, logs, foods, templates, displayTargets, summary, energyHistory, refresh } =
     useTracker();
   const toast = useToast();
+  const { t } = useLanguage();
 
   const bySlot = useMemo(() => {
     const grouped: Record<MealSlot, typeof logs> = {
@@ -30,23 +32,23 @@ export function TodayPage() {
     const sourceDate = previousDay(date);
     const source = await logsRepo.getByDate(sourceDate);
     if (source.length === 0) {
-      toast('Eilinen on tyhjä');
+      toast(t('toast.yesterdayEmpty'));
       return;
     }
     await copyLogsToDate(source, date);
     await refresh();
-    toast('Eilinen kopioitu');
+    toast(t('toast.yesterdayCopied'));
   }
 
   async function copyMealFromYesterday(slot: MealSlot) {
     const source = await logsRepo.getByDateAndSlot(previousDay(date), slot);
     if (source.length === 0) {
-      toast(`Eilisen ${MEAL_SLOT_LABELS[slot].toLowerCase()} on tyhjä`);
+      toast(t('toast.yesterdayMealEmpty', { meal: mealSlotLabel(slot).toLowerCase() }));
       return;
     }
     await copyLogsToDate(source, date, slot);
     await refresh();
-    toast(`${MEAL_SLOT_LABELS[slot]} kopioitu eilisestä`);
+    toast(t('toast.mealCopiedFromYesterday', { meal: mealSlotLabel(slot) }));
   }
 
   async function applyTrainingDay() {
@@ -55,7 +57,7 @@ export function TodayPage() {
       await applyTemplate({ template, date });
     }
     await refresh();
-    toast('Treenipäivän mallit lisätty');
+    toast(t('toast.trainingTemplatesAdded'));
   }
 
   return (
@@ -63,10 +65,10 @@ export function TodayPage() {
       <header className="topbar">
         <div className="brand">
           <strong>Ravinto</strong>
-          <span>Lindan päivän ruoka</span>
+          <span>{t('app.tagline')}</span>
         </div>
         <Link className="chip" to={`/add?date=${date}&slot=snack&tab=quick`}>
-          Pikalisäys
+          {t('app.quickAdd')}
         </Link>
       </header>
 
@@ -74,19 +76,19 @@ export function TodayPage() {
         <button
           type="button"
           className="icon-btn"
-          aria-label="Edellinen päivä"
+          aria-label={t('date.prev')}
           onClick={() => setDate(addDays(date, -1))}
         >
           ‹
         </button>
         <b>
           {formatHelsinkiDate(date)}
-          {isToday(date) ? ' · tänään' : ''}
+          {isToday(date) ? t('date.todaySuffix') : ''}
         </b>
         <button
           type="button"
           className="icon-btn"
-          aria-label="Seuraava päivä"
+          aria-label={t('date.next')}
           onClick={() => setDate(addDays(date, 1))}
         >
           ›
@@ -99,10 +101,10 @@ export function TodayPage() {
 
       <div className="quick-row">
         <button type="button" className="ghost" onClick={() => void copyYesterday()}>
-          Kopioi eilinen
+          {t('today.copyYesterday')}
         </button>
         <button type="button" className="primary" onClick={() => void applyTrainingDay()}>
-          Treenipäivä
+          {t('today.trainingDay')}
         </button>
       </div>
 
@@ -121,7 +123,7 @@ export function TodayPage() {
             style={{ margin: '-4px 0 12px' }}
             onClick={() => void copyMealFromYesterday(slot)}
           >
-            Kopioi eilisen {MEAL_SLOT_LABELS[slot].toLowerCase()}
+            {t('today.copyYesterdayMeal', { meal: mealSlotLabel(slot).toLowerCase() })}
           </button>
         </div>
       ))}

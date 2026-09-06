@@ -1,4 +1,5 @@
 import { unitLabel } from '../domain/macros';
+import { useLanguage } from '../i18n';
 
 export function AmountStepper({
   value,
@@ -9,6 +10,7 @@ export function AmountStepper({
   unit: 'g' | 'piece' | 'ml';
   onChange: (value: number) => void;
 }) {
+  const { t } = useLanguage();
   const step = unit === 'piece' ? 1 : unit === 'ml' || value < 20 ? 1 : 5;
   const min = unit === 'piece' ? 1 : 1;
 
@@ -17,7 +19,7 @@ export function AmountStepper({
       <div className="stepper">
         <button
           type="button"
-          aria-label="Vähennä"
+          aria-label={t('amount.decrease')}
           onClick={() => onChange(Math.max(min, roundAmount(value - step, unit)))}
         >
           −
@@ -25,7 +27,7 @@ export function AmountStepper({
         <input
           inputMode="decimal"
           value={String(value)}
-          aria-label={`Määrä (${unitLabel(unit)})`}
+          aria-label={t('amount.label', { unit: unitLabel(unit) })}
           onChange={(event) => {
             const next = Number(event.target.value.replace(',', '.'));
             if (Number.isFinite(next) && next >= 0) onChange(next);
@@ -34,7 +36,7 @@ export function AmountStepper({
         />
         <button
           type="button"
-          aria-label="Lisää"
+          aria-label={t('amount.increase')}
           onClick={() => onChange(roundAmount(value + step, unit))}
         >
           +

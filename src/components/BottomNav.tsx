@@ -1,14 +1,16 @@
 import { NavLink } from 'react-router-dom';
-
-const links = [
-  { to: '/', label: 'Tänään', end: true },
-  { to: '/templates', label: 'Mallit', end: false },
-  { to: '/settings', label: 'Tavoitteet', end: false },
-];
+import { useLanguage } from '../i18n';
 
 export function BottomNav() {
+  const { t } = useLanguage();
+  const links = [
+    { to: '/', label: t('nav.today'), end: true },
+    { to: '/templates', label: t('nav.templates'), end: false },
+    { to: '/settings', label: t('nav.targets'), end: false },
+  ];
+
   return (
-    <nav className="bottom-nav" aria-label="Päänavigaatio">
+    <nav className="bottom-nav" aria-label={t('nav.main')}>
       {links.map((link) => (
         <NavLink
           key={link.to}
