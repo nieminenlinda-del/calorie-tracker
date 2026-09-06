@@ -54,7 +54,7 @@ describe('MyFitnessPal nutrition.csv', () => {
       carbs: 47.5,
       fat: 8.4,
     });
-    expect(breakfast?.custom_name).toContain('Frukost');
+    expect(breakfast?.custom_name).toContain('Breakfast');
     expect(logs.find((log) => log.meal_slot === 'snack')?.custom_name).toContain('banaani');
   });
 

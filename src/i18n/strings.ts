@@ -1,7 +1,7 @@
 export type Locale = 'sv' | 'en';
 
-export const DEFAULT_LOCALE: Locale = 'sv';
-export const LOCALES: Locale[] = ['sv', 'en'];
+export const DEFAULT_LOCALE: Locale = 'en';
+export const LOCALES: Locale[] = ['en', 'sv'];
 export const LOCALE_STORAGE_KEY = 'ravinto-locale';
 
 const sv = {

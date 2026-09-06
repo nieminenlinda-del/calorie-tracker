@@ -22,53 +22,42 @@ afterEach(() => {
 });
 
 describe('locale', () => {
-  it('defaults to Swedish', () => {
-    expect(DEFAULT_LOCALE).toBe('sv');
-    expect(getLocale()).toBe('sv');
-    expect(t('nav.today')).toBe('Idag');
-    expect(mealSlotLabel('breakfast')).toBe('Frukost');
-    expect(unitLabel('piece')).toBe('st');
-    expect(trainingDayLabel('2026-09-01')).toBe('träning B');
-    expect(trainingDayLabel('2026-09-02')).toBe('vila');
-  });
-
-  it('switches to English and persists the choice', () => {
-    setLocale('en');
+  it('defaults to English', () => {
+    expect(DEFAULT_LOCALE).toBe('en');
     expect(getLocale()).toBe('en');
-    expect(localStorage.getItem(LOCALE_STORAGE_KEY)).toBe('en');
     expect(t('nav.today')).toBe('Today');
-    expect(mealSlotLabel('dinner')).toBe('Dinner');
+    expect(mealSlotLabel('breakfast')).toBe('Breakfast');
     expect(unitLabel('piece')).toBe('pcs');
     expect(trainingDayLabel('2026-09-01')).toBe('training B');
-    expect(t('flag.dairy_free')).toBe('Dairy-free');
-    expect(document.documentElement.lang).toBe('en');
+    expect(trainingDayLabel('2026-09-02')).toBe('rest');
+  });
+
+  it('can switch to Swedish and persists the choice', () => {
+    setLocale('sv');
+    expect(getLocale()).toBe('sv');
+    expect(localStorage.getItem(LOCALE_STORAGE_KEY)).toBe('sv');
+    expect(t('nav.today')).toBe('Idag');
+    expect(mealSlotLabel('dinner')).toBe('Middag');
+    expect(unitLabel('piece')).toBe('st');
+    expect(trainingDayLabel('2026-09-01')).toBe('träning B');
+    expect(t('flag.dairy_free')).toBe('Mjölkfri');
+    expect(document.documentElement.lang).toBe('sv');
   });
 
   it('reads a stored locale on init', () => {
-    localStorage.setItem(LOCALE_STORAGE_KEY, 'en');
-    expect(readStoredLocale()).toBe('en');
-    expect(initLocale()).toBe('en');
-    expect(t('settings.language')).toBe('Language');
+    localStorage.setItem(LOCALE_STORAGE_KEY, 'sv');
+    expect(readStoredLocale()).toBe('sv');
+    expect(initLocale()).toBe('sv');
+    expect(t('settings.language')).toBe('Språk');
   });
 
-  it('falls back to Swedish for unknown stored values', () => {
+  it('falls back to English for unknown stored values', () => {
     localStorage.setItem(LOCALE_STORAGE_KEY, 'fi');
-    expect(readStoredLocale()).toBe('sv');
+    expect(readStoredLocale()).toBe('en');
   });
 
   it('localizes the energy adjustment hint', () => {
-    initLocale('sv');
-    expect(
-      formatAdjustmentHint({
-        baselineKcal: 2050,
-        date: '2026-09-01',
-        activeKcal: 400,
-        trainingLabel: trainingDayLabel('2026-09-01'),
-        adjusted: true,
-      }),
-    ).toBe('träning B · aktiv 400 kcal · mål nu 2300 kcal');
-
-    setLocale('en');
+    initLocale('en');
     expect(
       formatAdjustmentHint({
         baselineKcal: 2050,
@@ -78,18 +67,29 @@ describe('locale', () => {
         adjusted: false,
       }),
     ).toBe('rest · active not imported · target 2050 kcal');
+
+    setLocale('sv');
+    expect(
+      formatAdjustmentHint({
+        baselineKcal: 2050,
+        date: '2026-09-01',
+        activeKcal: 400,
+        trainingLabel: trainingDayLabel('2026-09-01'),
+        adjusted: true,
+      }),
+    ).toBe('träning B · aktiv 400 kcal · mål nu 2300 kcal');
   });
 
   it('formats the calendar date in the active language', () => {
-    initLocale('sv');
-    expect(formatHelsinkiDate('2026-09-01').toLowerCase()).toContain('tis');
-    setLocale('en');
+    initLocale('en');
     expect(formatHelsinkiDate('2026-09-01')).toMatch(/Tue/i);
+    setLocale('sv');
+    expect(formatHelsinkiDate('2026-09-01').toLowerCase()).toContain('tis');
   });
 
   it('uses a localized unknown-food fallback', () => {
-    expect(logLabel({ food_id: 'missing' } as never, [])).toBe('Okänd');
-    setLocale('en');
     expect(logLabel({ food_id: 'missing' } as never, [])).toBe('Unknown');
+    setLocale('sv');
+    expect(logLabel({ food_id: 'missing' } as never, [])).toBe('Okänd');
   });
 });
