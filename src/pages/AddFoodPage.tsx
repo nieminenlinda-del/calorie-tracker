@@ -11,7 +11,8 @@ import {
   formatGrams,
   unitLabel,
 } from '../domain/macros';
-import { MEAL_SLOT_LABELS, type MealSlot } from '../domain/types';
+import type { MealSlot } from '../domain/types';
+import { mealSlotLabel, useLanguage } from '../i18n';
 import { foodLabel } from '../lib/labels';
 import { logsRepo } from '../repos';
 import { useTracker } from '../state/TrackerContext';
@@ -25,6 +26,7 @@ export function AddFoodPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const toast = useToast();
+  const { t, tcount } = useLanguage();
   const date = params.get('date') ?? contextDate;
   const slot = (params.get('slot') as MealSlot | null) ?? 'breakfast';
   const [tab, setTab] = useState<Tab>(params.get('tab') === 'quick' ? 'quick' : 'catalog');
@@ -51,27 +53,27 @@ export function AddFoodPage() {
   return (
     <div className="page page-add">
       <header className="topbar">
-        <button type="button" className="icon-btn" onClick={() => navigate('/')} aria-label="Takaisin">
+        <button type="button" className="icon-btn" onClick={() => navigate('/')} aria-label={t('add.back')}>
           ‹
         </button>
         <div className="brand">
-          <strong>Lisää ruokaa</strong>
-          <span>{MEAL_SLOT_LABELS[slot]}</span>
+          <strong>{t('add.title')}</strong>
+          <span>{mealSlotLabel(slot)}</span>
         </div>
         <Link className="chip" to="/">
-          Valmis
+          {t('add.done')}
         </Link>
       </header>
 
       <div className="tabs">
         <TabButton active={tab === 'catalog'} onClick={() => setTab('catalog')}>
-          Valikoima
+          {t('add.tabCatalog')}
         </TabButton>
         <TabButton active={tab === 'quick'} onClick={() => setTab('quick')}>
-          Pika
+          {t('add.tabQuick')}
         </TabButton>
         <TabButton active={tab === 'templates'} onClick={() => setTab('templates')}>
-          Mallit
+          {t('add.tabTemplates')}
         </TabButton>
       </div>
 
@@ -82,7 +84,7 @@ export function AddFoodPage() {
             <p className="lede">
               {selected.name_en}
               {selected.brand ? ` · ${selected.brand}` : ''} · {selected.kcal} kcal /{' '}
-              {selected.basis === 'per_piece' ? 'kpl' : '100 g'}
+              {selected.basis === 'per_piece' ? t('add.perPiece') : t('add.per100g')}
             </p>
             <AmountStepper value={amount} unit={selected.serving_unit} onChange={setAmount} />
             {preview ? (
@@ -93,21 +95,21 @@ export function AddFoodPage() {
                 </div>
                 <div>
                   <b>{formatGrams(preview.protein)}</b>
-                  <span>P</span>
+                  <span>{t('macros.p')}</span>
                 </div>
                 <div>
                   <b>{formatGrams(preview.carbs)}</b>
-                  <span>H</span>
+                  <span>{t('macros.c')}</span>
                 </div>
                 <div>
                   <b>{formatGrams(preview.fat)}</b>
-                  <span>R</span>
+                  <span>{t('macros.f')}</span>
                 </div>
               </div>
             ) : null}
             <div className="row-btns">
               <button type="button" className="ghost" onClick={() => setSelectedId(null)}>
-                Takaisin
+                {t('add.back')}
               </button>
               <button
                 type="button"
@@ -115,11 +117,11 @@ export function AddFoodPage() {
                 onClick={async () => {
                   await logCatalogFood({ date, meal_slot: slot, food: selected, amount });
                   await refresh();
-                  toast(`${selected.name_fi} lisätty`);
+                  toast(t('toast.foodAdded', { name: selected.name_fi }));
                   navigate('/');
                 }}
               >
-                Lisää
+                {t('add.add')}
               </button>
             </div>
           </div>
@@ -127,13 +129,13 @@ export function AddFoodPage() {
           <div>
             <input
               className="search"
-              placeholder="Hae suomeksi tai englanniksi"
+              placeholder={t('add.searchPlaceholder')}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
             {query === '' && recent.length > 0 ? (
               <>
-                <div className="section-label">Viimeksi</div>
+                <div className="section-label">{t('add.recent')}</div>
                 {recent.map((food) => (
                   <FoodButton
                     key={`recent-${food.id}`}
@@ -146,7 +148,7 @@ export function AddFoodPage() {
                 ))}
               </>
             ) : null}
-            <div className="section-label">Perusruoat</div>
+            <div className="section-label">{t('add.staples')}</div>
             {filtered.map((food) => (
               <FoodButton
                 key={food.id}
@@ -173,7 +175,7 @@ export function AddFoodPage() {
               ...macrosFromCustom(values),
             });
             await refresh();
-            toast('Pikalisäys tallennettu');
+            toast(t('toast.quickAddSaved'));
             navigate('/');
           }}
         />
@@ -182,7 +184,7 @@ export function AddFoodPage() {
       {tab === 'templates' ? (
         <div>
           {slotTemplates.length === 0 ? (
-            <p className="lede">Ei malleja tälle aterialle vielä.</p>
+            <p className="lede">{t('add.noTemplates')}</p>
           ) : (
             slotTemplates.map((template) => (
               <button
@@ -192,15 +194,15 @@ export function AddFoodPage() {
                 onClick={async () => {
                   await applyTemplate({ template, date, meal_slot: slot });
                   await refresh();
-                  toast(`${template.name} lisätty`);
+                  toast(t('toast.foodAdded', { name: template.name }));
                   navigate('/');
                 }}
               >
                 <div>
                   <div className="name">{template.name}</div>
-                  <div className="sub">{template.items.length} riviä</div>
+                  <div className="sub">{tcount(template.items.length, 'add.rowsOne', 'add.rowsOther')}</div>
                 </div>
-                <b>Käytä</b>
+                <b>{t('add.use')}</b>
               </button>
             ))
           )}
@@ -209,7 +211,7 @@ export function AddFoodPage() {
             slot={slot}
             onCopied={async () => {
               await refresh();
-              toast('Ateria kopioitu');
+              toast(t('toast.mealCopied'));
               navigate('/');
             }}
           />
@@ -236,13 +238,18 @@ function TabButton({
 }
 
 function FoodButton({ food, onPick }: { food: Food; onPick: () => void }) {
+  const { t } = useLanguage();
   return (
     <button type="button" className="food-row" onClick={onPick}>
       <div>
         <div className="name">{food.name_fi}</div>
         <div className="sub">
-          {foodLabel(food)} · {food.kcal} kcal / {food.basis === 'per_piece' ? 'kpl' : '100 g'} · oletus{' '}
-          {food.default_serving} {unitLabel(food.serving_unit)}
+          {foodLabel(food)} · {food.kcal} kcal /{' '}
+          {food.basis === 'per_piece' ? t('add.perPiece') : t('add.per100g')} ·{' '}
+          {t('add.defaultAmount', {
+            amount: food.default_serving,
+            unit: unitLabel(food.serving_unit),
+          })}
         </div>
       </div>
       <b>+</b>
@@ -262,6 +269,7 @@ function QuickAddForm({
     fat: number;
   }) => Promise<void>;
 }) {
+  const { t } = useLanguage();
   const [name, setName] = useState('');
   const [amount, setAmount] = useState(100);
   const [kcal, setKcal] = useState(0);
@@ -278,11 +286,11 @@ function QuickAddForm({
       }}
     >
       <label className="field">
-        <span>Nimi</span>
+        <span>{t('meal.name')}</span>
         <input value={name} onChange={(event) => setName(event.target.value)} required />
       </label>
       <label className="field">
-        <span>Määrä (g)</span>
+        <span>{t('add.amountG')}</span>
         <input
           inputMode="decimal"
           value={amount}
@@ -298,12 +306,12 @@ function QuickAddForm({
         />
       </label>
       <div className="macro-grid" style={{ marginBottom: 12 }}>
-        <Num label="P" value={protein} onChange={setProtein} />
-        <Num label="H" value={carbs} onChange={setCarbs} />
-        <Num label="R" value={fat} onChange={setFat} />
+        <Num label={t('macros.p')} value={protein} onChange={setProtein} />
+        <Num label={t('macros.c')} value={carbs} onChange={setCarbs} />
+        <Num label={t('macros.f')} value={fat} onChange={setFat} />
       </div>
       <button type="submit" className="primary" style={{ width: '100%' }}>
-        Tallenna pikalisäys
+        {t('add.saveQuick')}
       </button>
     </form>
   );
@@ -340,6 +348,7 @@ function CopyMealButton({
   onCopied: () => Promise<void>;
 }) {
   const toast = useToast();
+  const { t } = useLanguage();
   return (
     <button
       type="button"
@@ -348,14 +357,14 @@ function CopyMealButton({
       onClick={async () => {
         const source = await logsRepo.getByDateAndSlot(previousDay(date), slot);
         if (source.length === 0) {
-          toast('Eilinen ateria on tyhjä');
+          toast(t('toast.yesterdayMealEmptyShort'));
           return;
         }
         await copyLogsToDate(source, date, slot);
         await onCopied();
       }}
     >
-      Kopioi eilisen {MEAL_SLOT_LABELS[slot].toLowerCase()}
+      {t('add.copyYesterdayMeal', { meal: mealSlotLabel(slot).toLowerCase() })}
     </button>
   );
 }

@@ -1,5 +1,6 @@
 import { macrosFromCustom } from '../domain/macros';
-import { MEAL_SLOT_LABELS, type FoodLog, type MealSlot } from '../domain/types';
+import type { FoodLog, MealSlot } from '../domain/types';
+import { mealSlotLabel } from '../i18n/locale';
 import { logsRepo } from '../repos/logsRepo';
 
 export const MFP_ID_PREFIX = 'mfp:';
@@ -111,8 +112,8 @@ export function foodLogsFromMfpRows(rows: Record<string, string>[]): FoodLog[] {
     const note = row.Note?.trim();
     const time = row.Time?.trim();
     const label = note
-      ? `MFP: ${MEAL_SLOT_LABELS[slot]} · ${note}`
-      : `MFP: ${MEAL_SLOT_LABELS[slot]}`;
+      ? `MFP: ${mealSlotLabel(slot)} · ${note}`
+      : `MFP: ${mealSlotLabel(slot)}`;
     const id = mfpLogId(date, slot);
     const existing = merged.get(id);
     if (existing) {

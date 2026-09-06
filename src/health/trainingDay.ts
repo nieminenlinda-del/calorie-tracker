@@ -1,4 +1,5 @@
 import { helsinkiWeekday } from '../domain/dates';
+import { t } from '../i18n/locale';
 import type { TrainingDayCode } from './types';
 
 /** Linda Lift A–D: Mon / Tue / Thu / Fri. Wed + weekend = rest. */
@@ -19,5 +20,5 @@ export function isTrainingDay(date: string): boolean {
 
 export function trainingDayLabel(date: string): string {
   const code = getTrainingDayCode(date);
-  return code ? `treeni ${code}` : 'lepo';
+  return code ? t('training.day', { code }) : t('training.rest');
 }

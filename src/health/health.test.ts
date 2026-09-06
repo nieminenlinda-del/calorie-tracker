@@ -107,8 +107,8 @@ describe('training calendar', () => {
     expect(getTrainingDayCode('2026-09-04')).toBe('D');
     expect(isTrainingDay('2026-09-05')).toBe(false);
     expect(isTrainingDay('2026-09-06')).toBe(false);
-    expect(trainingDayLabel('2026-09-01')).toBe('treeni B');
-    expect(trainingDayLabel('2026-09-02')).toBe('lepo');
+    expect(trainingDayLabel('2026-09-01')).toBe('träning B');
+    expect(trainingDayLabel('2026-09-02')).toBe('vila');
   });
 
   it('does not change the 2050 baseline unless the training-day toggle is on', () => {
@@ -155,12 +155,12 @@ describe('ingest into shared linda-health', () => {
       sources: [WATCH, 'Polar Beat'],
     });
     expect(isTrainingDay(tuesday!.date)).toBe(true);
-    expect(trainingDayLabel(tuesday!.date)).toBe('treeni B');
+    expect(trainingDayLabel(tuesday!.date)).toBe('träning B');
 
     const rest = await getDailyActiveEnergy('2026-09-02');
     expect(rest?.active_kcal).toBe(180.5);
     expect(isTrainingDay(rest!.date)).toBe(false);
-    expect(trainingDayLabel(rest!.date)).toBe('lepo');
+    expect(trainingDayLabel(rest!.date)).toBe('vila');
 
     const thursday = await getDailyActiveEnergy('2026-09-03');
     expect(thursday).toEqual({
@@ -168,7 +168,7 @@ describe('ingest into shared linda-health', () => {
       active_kcal: 220.4,
       sources: [WATCH],
     });
-    expect(trainingDayLabel(thursday!.date)).toBe('treeni C');
+    expect(trainingDayLabel(thursday!.date)).toBe('träning C');
 
     const samples = await healthSamplesRepo.getByType(ACTIVE_ENERGY_TYPE);
     expect(samples).toHaveLength(5);

@@ -76,7 +76,7 @@ describe('Shortcuts JSON parse', () => {
     expect(() => parseShortcutJson('{"schema":"nope","schema_version":1,"days":[]}')).toThrow(
       /schema: linda-health-shortcut/,
     );
-    expect(() => parseShortcutJson('not json')).toThrow(/kelvollinen JSON/);
+    expect(() => parseShortcutJson('not json')).toThrow(/giltig JSON/);
     expect(() =>
       parseShortcutJson(JSON.stringify({ schema: SHORTCUT_SCHEMA, schema_version: 2, days: [] })),
     ).toThrow(/schema_version/);

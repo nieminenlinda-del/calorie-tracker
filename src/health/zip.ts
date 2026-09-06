@@ -1,4 +1,5 @@
 import { Unzip, UnzipInflate, UnzipPassThrough } from 'fflate';
+import { t } from '../i18n/locale';
 
 const ZIP_MAGIC = [0x50, 0x4b];
 const PUSH_SLICE = 256 * 1024;
@@ -53,7 +54,7 @@ export function streamExportXmlFromZip(
     uz.push(zipBytes.subarray(i, end), end >= zipBytes.length);
   }
   if (!found) {
-    throw new Error('Zip-tiedostosta ei löytynyt export.xml');
+    throw new Error(t('error.zipMissingExportXml'));
   }
 }
 
@@ -86,7 +87,7 @@ export async function streamExportXmlFromZipChunks(
   uz.push(new Uint8Array(0), true);
   await chain;
   if (!found) {
-    throw new Error('Zip-tiedostosta ei löytynyt export.xml');
+    throw new Error(t('error.zipMissingExportXml'));
   }
 }
 
@@ -94,7 +95,7 @@ export async function streamExportXmlFromZipChunks(
 export function extractExportXml(bytes: Uint8Array): Uint8Array {
   if (looksLikeXml(bytes)) return bytes;
   if (!looksLikeZip(bytes)) {
-    throw new Error('Tiedosto ei ole Health-vienti (xml tai zip)');
+    throw new Error(t('error.notHealthExport'));
   }
   const parts: Uint8Array[] = [];
   streamExportXmlFromZip(bytes, (chunk) => {

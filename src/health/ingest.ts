@@ -1,3 +1,4 @@
+import { t } from '../i18n/locale';
 import { dailyActiveEnergyRepo, healthSamplesRepo, recomputeDailyActiveEnergy } from '../repos/healthRepo';
 import { dailyEnergyFromSummary, sampleDay } from './aggregate';
 import { HealthExportScanner } from './parseExport';
@@ -159,7 +160,7 @@ export async function ingestHealthBytes(
     return session.finish();
   }
   if (!looksLikeZip(bytes)) {
-    throw new Error('Tiedosto ei ole Health-vienti (xml tai zip)');
+    throw new Error(t('error.notHealthExport'));
   }
 
   const session = new HealthIngestSession(onProgress);
@@ -184,7 +185,7 @@ export async function ingestHealthFile(
     return session.finish();
   }
   if (!looksLikeZip(head)) {
-    throw new Error('Tiedosto ei ole Health-vienti (xml tai zip)');
+    throw new Error(t('error.notHealthExport'));
   }
 
   const session = new HealthIngestSession(onProgress);

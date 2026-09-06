@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { dailyActiveEnergyRepo, healthSamplesRepo } from '../repos/healthRepo';
 import { dailyEnergyFromSummary } from './aggregate';
 import type { DailyActiveEnergy, HealthSample, IngestResult } from './types';
@@ -65,7 +66,7 @@ export interface ParsedShortcutJson {
 
 function asRecord(value: unknown, label: string): Record<string, unknown> {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
-    throw new ShortcutImportError(`${label} puuttuu tai ei ole objekti`);
+    throw new ShortcutImportError(t('error.notObject', { label }));
   }
   return value as Record<string, unknown>;
 }
@@ -157,7 +158,7 @@ function workoutToSample(workout: ShortcutWorkoutInput): HealthSample | null {
 function dayToRow(raw: Record<string, unknown>, fallbackSource?: string): ParsedShortcutDay {
   const date = asString(raw.date);
   if (!date || !DATE_RE.test(date)) {
-    throw new ShortcutImportError('Shortcuts-JSON: virheellinen päivä (odotettu YYYY-MM-DD)');
+    throw new ShortcutImportError(t('error.shortcutInvalidDate'));
   }
 
   const sources = asStringList(raw.sources);
@@ -169,9 +170,7 @@ function dayToRow(raw: Record<string, unknown>, fallbackSource?: string): Parsed
     const burned =
       asFiniteNumber(summary.activeEnergyBurned) ?? asFiniteNumber(summary.active_kcal);
     if (burned == null) {
-      throw new ShortcutImportError(
-        `Shortcuts-JSON: päivältä ${date} activity_summary.activeEnergyBurned puuttuu`,
-      );
+      throw new ShortcutImportError(t('error.shortcutMissingBurned', { date }));
     }
     row = dailyEnergyFromSummary(
       {
@@ -184,9 +183,7 @@ function dayToRow(raw: Record<string, unknown>, fallbackSource?: string): Parsed
   } else {
     const active = asFiniteNumber(raw.active_kcal);
     if (active == null) {
-      throw new ShortcutImportError(
-        `Shortcuts-JSON: päivältä ${date} puuttuu active_kcal tai activity_summary`,
-      );
+      throw new ShortcutImportError(t('error.shortcutMissingActive', { date }));
     }
     const fallback = sources.length > 0 ? sources : [fallbackSource ?? 'iOS Shortcuts'];
     row = {
@@ -212,29 +209,27 @@ export function parseShortcutJson(text: string): ParsedShortcutJson {
   try {
     parsed = JSON.parse(stripped);
   } catch {
-    throw new ShortcutImportError('Tiedosto ei ole kelvollinen JSON');
+    throw new ShortcutImportError(t('error.invalidJson'));
   }
 
   const root = asRecord(parsed, 'Shortcuts-JSON');
   const schema = asString(root.schema);
   if (schema !== SHORTCUT_SCHEMA) {
-    throw new ShortcutImportError(
-      'Tiedosto ei ole Shortcuts-vienti (schema: linda-health-shortcut)',
-    );
+    throw new ShortcutImportError(t('error.notShortcutExport'));
   }
 
   const version = asFiniteNumber(root.schema_version);
   if (version !== SHORTCUT_SCHEMA_VERSION) {
-    throw new ShortcutImportError('Tuntematon schema_version (odotettu 1)');
+    throw new ShortcutImportError(t('error.unknownSchemaVersion'));
   }
 
   if (!('days' in root)) {
-    throw new ShortcutImportError('Shortcuts-JSON:sta puuttuu days-taulukko');
+    throw new ShortcutImportError(t('error.shortcutMissingDays'));
   }
 
   const fileSource = asString(root.source);
   const days = asList(root.days).map((item) => {
-    const raw = asRecord(item, 'Shortcuts-päivä');
+    const raw = asRecord(item, 'Shortcuts day');
     return dayToRow(raw, fileSource);
   });
 

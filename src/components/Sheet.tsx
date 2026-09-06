@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { useLanguage } from '../i18n';
 
 export function Sheet({
   title,
@@ -10,6 +11,7 @@ export function Sheet({
   children: ReactNode;
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   const node = (
     <div className="sheet" role="dialog" aria-modal="true" aria-label={title}>
       <div className="sheet-card">
@@ -18,7 +20,7 @@ export function Sheet({
           <h2 className="h1" style={{ fontSize: 20 }}>
             {title}
           </h2>
-          <button type="button" className="icon-btn" onClick={onClose} aria-label="Sulje">
+          <button type="button" className="icon-btn" onClick={onClose} aria-label={t('sheet.close')}>
             ✕
           </button>
         </div>

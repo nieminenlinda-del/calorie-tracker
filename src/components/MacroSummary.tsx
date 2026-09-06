@@ -1,5 +1,6 @@
 import { formatGrams, formatKcal } from '../domain/macros';
 import type { DailySummary, UserTargets } from '../domain/types';
+import { useLanguage } from '../i18n';
 
 function clampPercent(consumed: number, target: number): number {
   if (target <= 0) return 0;
@@ -13,6 +14,7 @@ export function MacroSummary({
   summary: DailySummary;
   targets: UserTargets;
 }) {
+  const { t } = useLanguage();
   const over = summary.remaining.kcal < 0;
   return (
     <section className="macro-card" aria-live="polite">
@@ -22,7 +24,7 @@ export function MacroSummary({
           <small>/ {targets.kcal} kcal</small>
         </div>
         <div>
-          <small>Jäljellä</small>
+          <small>{t('macros.remaining')}</small>
           <div className="big" style={{ fontSize: 28 }}>
             {formatKcal(summary.remaining.kcal)}
           </div>
@@ -31,27 +33,25 @@ export function MacroSummary({
       <div className="bar kcal" aria-hidden>
         <span style={{ width: `${clampPercent(summary.kcal, targets.kcal)}%` }} />
       </div>
-      <p className="remain-label">
-        Proteiini, hiilari ja rasva päivittyvät heti kun lisäät ruoan.
-      </p>
+      <p className="remain-label">{t('macros.hint')}</p>
       <div className="macro-grid">
         <MacroPill
           kind="protein"
-          label="P"
+          label={t('macros.p')}
           consumed={summary.protein}
           remaining={summary.remaining.protein}
           target={targets.protein}
         />
         <MacroPill
           kind="carbs"
-          label="H"
+          label={t('macros.c')}
           consumed={summary.carbs}
           remaining={summary.remaining.carbs}
           target={targets.carbs}
         />
         <MacroPill
           kind="fat"
-          label="R"
+          label={t('macros.f')}
           consumed={summary.fat}
           remaining={summary.remaining.fat}
           target={targets.fat}
@@ -74,11 +74,12 @@ function MacroPill({
   remaining: number;
   target: number;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="macro-pill">
       <div className="k">{label}</div>
       <div className="v">{formatGrams(consumed)}</div>
-      <div className="r">{formatGrams(remaining)} jälj.</div>
+      <div className="r">{t('macros.remainingAbbr', { grams: formatGrams(remaining) })}</div>
       <div className={`bar ${kind}`} aria-hidden>
         <span style={{ width: `${clampPercent(consumed, target)}%` }} />
       </div>

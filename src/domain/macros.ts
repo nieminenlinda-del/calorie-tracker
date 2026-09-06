@@ -1,3 +1,4 @@
+import { t } from '../i18n/locale';
 import type { Food, Macros, UserTargets } from './types';
 
 export const ZERO_MACROS: Macros = { kcal: 0, protein: 0, carbs: 0, fat: 0 };
@@ -67,6 +68,6 @@ export function formatGrams(value: number): string {
 }
 
 export function unitLabel(unit: Food['serving_unit']): string {
-  if (unit === 'piece') return 'kpl';
+  if (unit === 'piece') return t('unit.piece');
   return unit;
 }

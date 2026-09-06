@@ -1,5 +1,5 @@
 import { applyTemplate } from '../domain/logging';
-import { MEAL_SLOT_LABELS } from '../domain/types';
+import { mealSlotLabel, useLanguage } from '../i18n';
 import { templatesRepo } from '../repos';
 import { useTracker } from '../state/TrackerContext';
 import { useToast } from '../state/ToastContext';
@@ -7,18 +7,17 @@ import { useToast } from '../state/ToastContext';
 export function TemplatesPage() {
   const { date, templates, refresh } = useTracker();
   const toast = useToast();
+  const { t, tcount } = useLanguage();
 
   return (
     <div className="page">
-      <h1 className="h1">Ateriamallit</h1>
-      <p className="lede">
-        Tallenna toistuva ateria ja lisää se yhdellä napilla. Treenipäivän mallit tulevat valmiina.
-      </p>
+      <h1 className="h1">{t('templates.title')}</h1>
+      <p className="lede">{t('templates.lede')}</p>
       {templates.map((template) => (
         <article key={template.id} className="template-card">
           <h3>{template.name}</h3>
           <p className="muted">
-            {MEAL_SLOT_LABELS[template.meal_slot]} · {template.items.length} riviä
+            {mealSlotLabel(template.meal_slot)} · {tcount(template.items.length, 'add.rowsOne', 'add.rowsOther')}
           </p>
           <div className="row-btns" style={{ marginTop: 10 }}>
             <button
@@ -27,10 +26,10 @@ export function TemplatesPage() {
               onClick={async () => {
                 await applyTemplate({ template, date });
                 await refresh();
-                toast(`${template.name} lisätty`);
+                toast(t('toast.foodAdded', { name: template.name }));
               }}
             >
-              Lisää tänään
+              {t('templates.addToday')}
             </button>
             {!template.id.startsWith('seed-') ? (
               <button
@@ -39,14 +38,14 @@ export function TemplatesPage() {
                 onClick={async () => {
                   await templatesRepo.delete(template.id);
                   await refresh();
-                  toast('Malli poistettu');
+                  toast(t('toast.templateDeleted'));
                 }}
               >
-                Poista
+                {t('meal.delete')}
               </button>
             ) : (
               <span className="muted" style={{ alignSelf: 'center' }}>
-                Valmis malli
+                {t('templates.preset')}
               </span>
             )}
           </div>

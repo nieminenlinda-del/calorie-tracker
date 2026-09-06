@@ -4,8 +4,9 @@ import { formatAdjustmentHint } from '../domain/energyTarget';
 import { importHealthFile } from '../health/importHealth';
 import { ingestShortcutFile, isShortcutJsonFile } from '../health/importShortcutJson';
 import { ingestMfpNutritionCsv } from '../health/mfp';
-import { trainingDayLabel } from '../health/trainingDay';
+import { isTrainingDay, trainingDayLabel } from '../health/trainingDay';
 import type { DailyActiveEnergy, IngestProgress } from '../health/types';
+import { useLanguage } from '../i18n';
 import { targetsRepo } from '../repos';
 import { useTracker } from '../state/TrackerContext';
 import { useToast } from '../state/ToastContext';
@@ -21,6 +22,7 @@ export function ActiveEnergyCard({
 }) {
   const { date, targets, dailyEnergy, refresh } = useTracker();
   const toast = useToast();
+  const { t } = useLanguage();
   const inputRef = useRef<HTMLInputElement>(null);
   const shortcutInputRef = useRef<HTMLInputElement>(null);
   const mfpInputRef = useRef<HTMLInputElement>(null);
@@ -45,12 +47,12 @@ export function ActiveEnergyCard({
       const text = await file.text();
       const result = await ingestMfpNutritionCsv(text);
       if (result.meals === 0) {
-        throw new Error('CSV:sta ei löytynyt aterioita. Käytä nutrition.csv-vientiä.');
+        throw new Error(t('health.mfpEmpty'));
       }
       await refresh();
-      toast(`MFP tuotu: ${result.meals} ateriaa, ${result.days} päivää`);
+      toast(t('health.mfpImported', { meals: result.meals, days: result.days }));
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Tuonti epäonnistui';
+      const message = err instanceof Error ? err.message : t('health.importFailed');
       setError(message);
       toast(message);
     } finally {
@@ -66,9 +68,9 @@ export function ActiveEnergyCard({
     try {
       const result = await ingestShortcutFile(file);
       await refresh();
-      toast(`Shortcuts tuotu: ${result.days} päivää`);
+      toast(t('health.shortcutsImported', { days: result.days }));
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Tuonti epäonnistui';
+      const message = err instanceof Error ? err.message : t('health.importFailed');
       setError(message);
       toast(message);
     } finally {
@@ -90,9 +92,15 @@ export function ActiveEnergyCard({
     try {
       const result = await importHealthFile(file, setProgress);
       await refresh();
-      toast(`Health tuotu: ${result.inserted} uutta, ${result.duplicates} duplikaattia, ${result.days} päivää`);
+      toast(
+        t('health.healthImported', {
+          inserted: result.inserted,
+          duplicates: result.duplicates,
+          days: result.days,
+        }),
+      );
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Tuonti epäonnistui';
+      const message = err instanceof Error ? err.message : t('health.importFailed');
       setError(message);
       toast(message);
     } finally {
@@ -107,13 +115,13 @@ export function ActiveEnergyCard({
       <div className="health-head">
         <div>
           <div className="section-label" style={{ margin: 0 }}>
-            Aktiivinen kulutus
+            {t('health.activeBurn')}
           </div>
           <div className="health-kcal">
             {dailyEnergy ? `${formatKcal(dailyEnergy.active_kcal)} kcal` : '—'}
           </div>
         </div>
-        <span className={label.startsWith('treeni') ? 'health-badge train' : 'health-badge rest'}>
+        <span className={isTrainingDay(date) ? 'health-badge train' : 'health-badge rest'}>
           {label}
         </span>
       </div>
@@ -129,11 +137,10 @@ export function ActiveEnergyCard({
           await refresh();
         }}
       >
-        Säädä treenipäivän mukaan
+        {t('health.adjustTraining')}
       </button>
       <p className="muted" style={{ margin: '8px 0 0' }}>
-        Treenipäivät ma/ti/to/pe = A/B/C/D. Kytkin lisää +250 kcal vain treenipäivänä; 2050
-        pysyy tallennettuna.
+        {t('health.adjustHint')}
       </p>
 
       {showImport ? (
@@ -151,7 +158,7 @@ export function ActiveEnergyCard({
             disabled={busy}
             onClick={() => inputRef.current?.click()}
           >
-            {busy ? 'Tuodaan…' : 'Tuo Apple Health -vienti'}
+            {busy ? t('health.importing') : t('health.importHealth')}
           </button>
           <input
             ref={shortcutInputRef}
@@ -166,7 +173,7 @@ export function ActiveEnergyCard({
             disabled={busy}
             onClick={() => shortcutInputRef.current?.click()}
           >
-            {busy ? 'Tuodaan…' : 'Tuo Shortcuts JSON'}
+            {busy ? t('health.importing') : t('health.importShortcuts')}
           </button>
           <input
             ref={mfpInputRef}
@@ -181,21 +188,19 @@ export function ActiveEnergyCard({
             disabled={busy}
             onClick={() => mfpInputRef.current?.click()}
           >
-            Tuo MyFitnessPal CSV
+            {t('health.importMfp')}
           </button>
           {progress ? (
-            <p className="muted">Luetaan… {progress.scanned} näytettä</p>
+            <p className="muted">{t('health.reading', { count: progress.scanned })}</p>
           ) : null}
           {error ? <p className="health-error">{error}</p> : null}
           <p className="muted">
-            Shortcuts: iCloud Drive → Linda Health → <code>linda-health-shortcut.json</code> (päivittäinen
-            synkka). Health-vienti: export.zip tai export.xml. Sama <code>linda-health</code>
-            -tietokanta kuin Linda Liftissä — tuo kerran jommasta kummasta.
+            {t('health.shortcutsHint', {
+              file: 'linda-health-shortcut.json',
+              db: 'linda-health',
+            })}
           </p>
-          <p className="muted">
-            MFP: <code>nutrition.csv</code> (ateriataso). Tuo uudestaan korvaa aiemmat MFP-rivit
-            siltä päivältä; omat lokit jäävät. Exercise/measurement-vientiä ei lueta.
-          </p>
+          <p className="muted">{t('health.mfpHint', { file: 'nutrition.csv' })}</p>
         </div>
       ) : null}
 
@@ -207,16 +212,21 @@ export function ActiveEnergyCard({
 }
 
 function HealthHistory({ rows }: { rows: DailyActiveEnergy[] }) {
+  const { t } = useLanguage();
   if (rows.length === 0) {
-    return <p className="muted" style={{ marginTop: 14 }}>Ei Health-historiaa vielä.</p>;
+    return (
+      <p className="muted" style={{ marginTop: 14 }}>
+        {t('health.noHistory')}
+      </p>
+    );
   }
   return (
     <table className="health-history">
       <thead>
         <tr>
-          <th>Päivä</th>
-          <th>Aktiivinen</th>
-          <th>Tyyppi</th>
+          <th>{t('health.colDay')}</th>
+          <th>{t('health.colActive')}</th>
+          <th>{t('health.colType')}</th>
         </tr>
       </thead>
       <tbody>

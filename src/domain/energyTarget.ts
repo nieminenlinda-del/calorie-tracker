@@ -1,3 +1,4 @@
+import { t } from '../i18n/locale';
 import { isTrainingDay } from '../health/trainingDay';
 import { roundKcal } from './macros';
 
@@ -30,15 +31,21 @@ export function formatAdjustmentHint(opts: {
   adjusted: boolean;
 }): string {
   const active =
-    opts.activeKcal === undefined ? 'ei tuotu' : `${Math.round(opts.activeKcal)} kcal`;
+    opts.activeKcal === undefined
+      ? t('health.notImported')
+      : `${Math.round(opts.activeKcal)} kcal`;
   const suggested = suggestedKcalTarget(opts.baselineKcal, opts.date);
   if (isTrainingDay(opts.date)) {
     const applied = opts.adjusted
-      ? `tavoite nyt ${suggested} kcal`
-      : `ehdotus ${suggested} kcal (+${TRAINING_DAY_KCAL_BONUS})`;
-    return `${opts.trainingLabel} · aktiivinen ${active} · ${applied}`;
+      ? t('health.targetNow', { kcal: suggested })
+      : t('health.suggestion', { kcal: suggested, bonus: TRAINING_DAY_KCAL_BONUS });
+    return t('health.hint', { label: opts.trainingLabel, active, applied });
   }
-  return `${opts.trainingLabel} · aktiivinen ${active} · tavoite ${opts.baselineKcal} kcal`;
+  return t('health.hint', {
+    label: opts.trainingLabel,
+    active,
+    applied: t('health.target', { kcal: opts.baselineKcal }),
+  });
 }
 
 export function effectiveTargetsKcal<T extends { kcal: number }>(

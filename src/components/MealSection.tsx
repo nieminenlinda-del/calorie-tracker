@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { sumMacros, formatKcal, formatGrams } from '../domain/macros';
-import { MEAL_SLOT_LABELS, type Food, type FoodLog, type MealSlot } from '../domain/types';
+import type { Food, FoodLog, MealSlot } from '../domain/types';
+import { mealSlotLabel, useLanguage } from '../i18n';
 import { amountLabel, logLabel } from '../lib/labels';
 import { logsRepo } from '../repos';
 import { saveMealAsTemplate, updateLogAmount } from '../domain/logging';
@@ -23,6 +24,7 @@ export function MealSection({
   onChange: () => Promise<void>;
 }) {
   const toast = useToast();
+  const { t } = useLanguage();
   const [editing, setEditing] = useState<FoodLog | null>(null);
   const [saving, setSaving] = useState(false);
   const [templateName, setTemplateName] = useState('');
@@ -32,22 +34,22 @@ export function MealSection({
     <section className="meal">
       <div className="meal-head">
         <div>
-          <h2>{MEAL_SLOT_LABELS[slot]}</h2>
+          <h2>{mealSlotLabel(slot)}</h2>
           <div className="meal-kcal">
             {logs.length === 0
-              ? 'Tyhjä'
-              : `${formatKcal(total.kcal)} kcal · P ${formatGrams(total.protein)}`}
+              ? t('meal.empty')
+              : `${formatKcal(total.kcal)} kcal · ${t('macros.p')} ${formatGrams(total.protein)}`}
           </div>
         </div>
         <div className="meal-actions">
           <Link className="chip accent" to={`/add?date=${date}&slot=${slot}`}>
-            + Lisää
+            {t('meal.add')}
           </Link>
         </div>
       </div>
 
       {logs.length === 0 ? (
-        <p className="empty-meal">Lisää ruoka grammoina, tai käytä valmista mallia.</p>
+        <p className="empty-meal">{t('meal.emptyHint')}</p>
       ) : (
         logs.map((log) => (
           <button key={log.id} type="button" className="log-row" onClick={() => setEditing(log)}>
@@ -58,7 +60,8 @@ export function MealSection({
             <div className="macros">
               {formatKcal(log.kcal)} kcal
               <br />
-              P {formatGrams(log.protein)} · H {formatGrams(log.carbs)} · R {formatGrams(log.fat)}
+              {t('macros.p')} {formatGrams(log.protein)} · {t('macros.c')} {formatGrams(log.carbs)} ·{' '}
+              {t('macros.f')} {formatGrams(log.fat)}
             </div>
           </button>
         ))
@@ -70,11 +73,11 @@ export function MealSection({
             type="button"
             className="ghost"
             onClick={() => {
-              setTemplateName(MEAL_SLOT_LABELS[slot]);
+              setTemplateName(mealSlotLabel(slot));
               setSaving(true);
             }}
           >
-            Tallenna ateria
+            {t('meal.saveMeal')}
           </button>
         </div>
       ) : null}
@@ -92,21 +95,21 @@ export function MealSection({
             );
             await onChange();
             setEditing(null);
-            toast('Päivitetty');
+            toast(t('toast.updated'));
           }}
           onDelete={async () => {
             await logsRepo.delete(editing.id);
             await onChange();
             setEditing(null);
-            toast('Poistettu');
+            toast(t('toast.deleted'));
           }}
         />
       ) : null}
 
       {saving ? (
-        <Sheet title="Tallenna ateria" onClose={() => setSaving(false)}>
+        <Sheet title={t('meal.saveMeal')} onClose={() => setSaving(false)}>
           <label className="field">
-            <span>Nimi</span>
+            <span>{t('meal.name')}</span>
             <input
               value={templateName}
               onChange={(event) => setTemplateName(event.target.value)}
@@ -119,7 +122,7 @@ export function MealSection({
             onClick={async () => {
               if (!templateName.trim()) return;
               if (!logs.some((log) => log.food_id)) {
-                toast('Malliksi kelpaavat vain valikoiman ruoat');
+                toast(t('toast.templateNeedsCatalog'));
                 return;
               }
               await saveMealAsTemplate({
@@ -129,10 +132,10 @@ export function MealSection({
               });
               await onChange();
               setSaving(false);
-              toast('Ateria tallennettu malliksi');
+              toast(t('toast.savedAsTemplate'));
             }}
           >
-            Tallenna
+            {t('meal.save')}
           </button>
         </Sheet>
       ) : null}
@@ -153,16 +156,17 @@ function EditLogSheet({
   onSave: (amount: number) => Promise<void>;
   onDelete: () => Promise<void>;
 }) {
+  const { t } = useLanguage();
   const [amount, setAmount] = useState(log.amount);
   return (
-    <Sheet title={log.custom_name ?? food?.name_fi ?? 'Merkintä'} onClose={onClose}>
+    <Sheet title={log.custom_name ?? food?.name_fi ?? t('meal.entry')} onClose={onClose}>
       <AmountStepper value={amount} unit={log.unit} onChange={setAmount} />
       <div className="row-btns" style={{ marginTop: 16 }}>
         <button type="button" className="danger" onClick={() => void onDelete()}>
-          Poista
+          {t('meal.delete')}
         </button>
         <button type="button" className="primary" onClick={() => void onSave(amount)}>
-          Tallenna
+          {t('meal.save')}
         </button>
       </div>
     </Sheet>

@@ -4,13 +4,6 @@ export type MealSlot = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 
 export const MEAL_SLOTS: MealSlot[] = ['breakfast', 'lunch', 'dinner', 'snack'];
 
-export const MEAL_SLOT_LABELS: Record<MealSlot, string> = {
-  breakfast: 'Aamiainen',
-  lunch: 'Lounas',
-  dinner: 'Päivällinen',
-  snack: 'Välipala',
-};
-
 export type DietFlag =
   | 'dairy_free'
   | 'no_bread'

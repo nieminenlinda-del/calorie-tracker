@@ -1,23 +1,15 @@
 import { useState } from 'react';
 import { ActiveEnergyCard } from '../components/ActiveEnergyCard';
 import { DEFAULT_DIET_FLAGS, DEFAULT_TARGETS, type DietFlag } from '../domain/types';
+import { LOCALES, flagLabel, useLanguage } from '../i18n';
 import { targetsRepo } from '../repos';
 import { useTracker } from '../state/TrackerContext';
 import { useToast } from '../state/ToastContext';
 
-const FLAG_LABELS: Record<DietFlag, string> = {
-  dairy_free: 'Maidoton',
-  no_bread: 'Ei leipää',
-  no_tofu: 'Ei tofua',
-  eggs_ok: 'Munat ok',
-  fish_ok: 'Kala ok',
-  no_other_meat: 'Ei muuta lihaa',
-  finnish_groceries: 'Suomen kaupat',
-};
-
 export function SettingsPage() {
   const { targets, energyHistory, refresh } = useTracker();
   const toast = useToast();
+  const { locale, setLocale, t } = useLanguage();
   const [kcal, setKcal] = useState(targets.kcal);
   const [protein, setProtein] = useState(targets.protein);
   const [carbs, setCarbs] = useState(targets.carbs);
@@ -26,12 +18,25 @@ export function SettingsPage() {
 
   return (
     <div className="page">
-      <h1 className="h1">Tavoitteet</h1>
+      <h1 className="h1">{t('settings.title')}</h1>
       <p className="lede">
-        Oletuslukemat ovat 2050 kcal · 125 P · 265 H · 60 R. Voit muokata niitä; päivän jäljellä
-        -luvut päivittyvät heti. Treenipäivän +250 kcal on erillinen kytkin, se ei ylikirjoita
-        tätä lukemaa.
+        {t('settings.lede', { p: t('macros.p'), c: t('macros.c'), f: t('macros.f') })}
       </p>
+
+      <div className="section-label">{t('settings.language')}</div>
+      <div className="flags" role="group" aria-label={t('settings.language')} style={{ marginBottom: 16 }}>
+        {LOCALES.map((code) => (
+          <button
+            key={code}
+            type="button"
+            className={locale === code ? 'flag on' : 'flag'}
+            aria-pressed={locale === code}
+            onClick={() => setLocale(code)}
+          >
+            {code === 'sv' ? t('settings.languageSv') : t('settings.languageEn')}
+          </button>
+        ))}
+      </div>
 
       <label className="field">
         <span>kcal</span>
@@ -42,7 +47,7 @@ export function SettingsPage() {
         />
       </label>
       <label className="field">
-        <span>Proteiini (g)</span>
+        <span>{t('settings.proteinG')}</span>
         <input
           inputMode="decimal"
           value={protein}
@@ -50,7 +55,7 @@ export function SettingsPage() {
         />
       </label>
       <label className="field">
-        <span>Hiilihydraatit (g)</span>
+        <span>{t('settings.carbsG')}</span>
         <input
           inputMode="decimal"
           value={carbs}
@@ -58,7 +63,7 @@ export function SettingsPage() {
         />
       </label>
       <label className="field">
-        <span>Rasva (g)</span>
+        <span>{t('settings.fatG')}</span>
         <input
           inputMode="decimal"
           value={fat}
@@ -66,7 +71,7 @@ export function SettingsPage() {
         />
       </label>
 
-      <div className="section-label">Ruokavalio</div>
+      <div className="section-label">{t('settings.diet')}</div>
       <div className="flags">
         {DEFAULT_DIET_FLAGS.map((flag) => {
           const on = flags.includes(flag);
@@ -83,7 +88,7 @@ export function SettingsPage() {
                 )
               }
             >
-              {FLAG_LABELS[flag]}
+              {flagLabel(flag)}
             </button>
           );
         })}
@@ -96,10 +101,10 @@ export function SettingsPage() {
           onClick={async () => {
             await targetsRepo.save({ kcal, protein, carbs, fat, diet_flags: flags });
             await refresh();
-            toast('Tavoitteet tallennettu');
+            toast(t('toast.targetsSaved'));
           }}
         >
-          Tallenna
+          {t('settings.save')}
         </button>
         <button
           type="button"
@@ -116,20 +121,17 @@ export function SettingsPage() {
               adjust_for_training_day: false,
             });
             await refresh();
-            toast('Oletukset palautettu');
+            toast(t('toast.defaultsRestored'));
           }}
         >
-          Palauta oletukset (2050 / 125 / 265 / 60)
+          {t('settings.restoreDefaults')}
         </button>
       </div>
 
       <h2 className="h1" style={{ fontSize: 20, marginTop: 28 }}>
-        Tuonnit
+        {t('settings.imports')}
       </h2>
-      <p className="lede">
-        Apple Health -vienti (zip/xml) tai iOS Shortcuts JSON iCloud Drivesta. Molemmat kirjoittavat
-        samaan <code>linda-health</code>-tietokantaan.
-      </p>
+      <p className="lede">{t('settings.importsLede')}</p>
       <ActiveEnergyCard history={energyHistory} showImport showHistory />
     </div>
   );

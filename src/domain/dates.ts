@@ -1,3 +1,4 @@
+import { getLocale } from '../i18n/locale';
 import { HELSINKI_TZ } from './types';
 
 const dateFmt = new Intl.DateTimeFormat('en-CA', {
@@ -7,12 +8,10 @@ const dateFmt = new Intl.DateTimeFormat('en-CA', {
   day: '2-digit',
 });
 
-const displayFmt = new Intl.DateTimeFormat('fi-FI', {
-  timeZone: HELSINKI_TZ,
-  weekday: 'short',
-  day: 'numeric',
-  month: 'short',
-});
+const DISPLAY_INTL: Record<'sv' | 'en', string> = {
+  sv: 'sv-SE',
+  en: 'en-GB',
+};
 
 export function helsinkiToday(): string {
   return dateFmt.format(new Date());
@@ -21,7 +20,12 @@ export function helsinkiToday(): string {
 export function formatHelsinkiDate(isoDate: string): string {
   const [year, month, day] = isoDate.split('-').map(Number);
   const utcNoon = new Date(Date.UTC(year, month - 1, day, 12));
-  return displayFmt.format(utcNoon);
+  return new Intl.DateTimeFormat(DISPLAY_INTL[getLocale()], {
+    timeZone: HELSINKI_TZ,
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  }).format(utcNoon);
 }
 
 export function addDays(isoDate: string, delta: number): string {
