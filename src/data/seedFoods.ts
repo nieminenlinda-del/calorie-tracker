@@ -45,7 +45,7 @@ const APP_FIELDS: Record<string, StapleAppFields> = {
     id: 'alpro-go-on-plain',
     default_serving: 150,
     brand: 'Alpro',
-    tags: ['staple', 'yogurt', 'plant'],
+    tags: ['staple', 'yogurt', 'plant', 'secondary'],
     aliases: ['alpro go on', 'alpro'],
   },
   'Oddlygood plain': {
@@ -180,7 +180,7 @@ const APP_FIELDS: Record<string, StapleAppFields> = {
   'Dark chocolate': {
     id: 'tumma-suklaa',
     default_serving: 20,
-    tags: ['staple', 'treat'],
+    tags: ['staple', 'treat', 'secondary'],
     aliases: ['tumma suklaa'],
   },
   'Frozen wok vegetables': {

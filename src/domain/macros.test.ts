@@ -115,31 +115,42 @@ describe('training-day templates', () => {
 
   it('logs a full training day near target macros', () => {
     const byId = new Map(SEED_FOODS.map((f) => [f.id, f]));
-    const logs = TRAINING_DAY_TEMPLATES.filter((template) => template.meal_slot !== 'evening_snack').flatMap(
-      (template) =>
-        template.items.map((item) => {
-          const food = byId.get(item.food_id)!;
-          return { ...scaleFoodMacros(food, item.amount) };
-        }),
+    const logs = TRAINING_DAY_TEMPLATES.flatMap((template) =>
+      template.items.map((item) => {
+        const food = byId.get(item.food_id)!;
+        return { ...scaleFoodMacros(food, item.amount) };
+      }),
     );
-    const summary = computeDailySummary('2026-09-03', logs as never, targets);
-    expect(summary.kcal).toBeGreaterThan(1900);
+    const summary = computeDailySummary('2026-09-07', logs as never, targets);
+    expect(summary.kcal).toBeGreaterThan(2000);
     expect(summary.kcal).toBeLessThan(2300);
-    expect(summary.protein).toBeGreaterThan(120);
-    expect(summary.fat).toBeGreaterThan(50);
-    expect(summary.fat).toBeLessThan(70);
+    expect(summary.protein).toBeGreaterThan(150);
+    expect(summary.fat).toBeGreaterThan(55);
+    expect(summary.fat).toBeLessThan(75);
   });
 
-  it('keeps Snack 1 option A as the training-day default and B as an alternate', () => {
-    const snackTemplates = SEED_TEMPLATES.filter((template) => template.meal_slot === 'snack');
-    expect(snackTemplates.map((template) => template.id)).toEqual([
+  it('uses Linda’s MFP today log as the training-day default', () => {
+    expect(TRAINING_DAY_TEMPLATES.map((template) => template.meal_slot)).toEqual([
+      'breakfast',
+      'lunch',
+      'snack',
+      'dinner',
+      'evening_snack',
+    ]);
+    expect(TRAINING_DAY_TEMPLATES.find((template) => template.meal_slot === 'snack')?.items).toEqual([
+      { food_id: 'banaani', amount: 150, unit: 'g' },
+      { food_id: 'soija-isolaatti-suklaa', amount: 40, unit: 'g' },
+      { food_id: 'huel-black-chocolate', amount: 90, unit: 'g' },
+    ]);
+    expect(TRAINING_DAY_TEMPLATES.find((template) => template.meal_slot === 'evening_snack')?.items.map((item) => item.food_id)).toEqual([
+      'fazer-aito-raspberry',
+      'pirkka-puolukka',
+      'sallinen-walnuts',
+    ]);
+    expect(SEED_TEMPLATES.filter((template) => template.meal_slot === 'snack').map((template) => template.id)).toEqual([
+      'seed-snack-linda-mfp',
       'seed-valipala-banaani-harkis',
       'seed-valipala-proteiini-omena',
-    ]);
-    expect(TRAINING_DAY_TEMPLATES.filter((template) => template.meal_slot === 'snack')).toHaveLength(1);
-    expect(TRAINING_DAY_TEMPLATES.find((template) => template.meal_slot === 'snack')?.items).toEqual([
-      { food_id: 'banaani', amount: 120, unit: 'g' },
-      { food_id: 'harkis-original', amount: 100, unit: 'g' },
     ]);
   });
 });
@@ -224,6 +235,11 @@ describe('seed catalog shape', () => {
       'nyhtokaura',
     ]));
     expect(SEED_FOODS.find((f) => f.id === 'kaurahiutaleet')?.name_en).toBe('Elovena wholegrain oats');
+    expect(SEED_FOODS.find((f) => f.id === 'soija-isolaatti-suklaa')?.name_en).toContain('Star Nutrition');
+    expect(SEED_FOODS.find((f) => f.id === 'fazer-aito-raspberry')?.brand).toBe('Fazer Aito');
+    expect(SEED_FOODS.find((f) => f.id === 'huel-black-chocolate')?.brand).toBe('Huel');
+    expect(SEED_FOODS.find((f) => f.id === 'tumma-suklaa')?.tags).toContain('secondary');
+    expect(SEED_FOODS.find((f) => f.id === 'alpro-go-on-plain')?.tags).toContain('secondary');
     expect(SEED_FOODS.find((f) => f.id === 'mustikat-pakaste')?.brand).toBe('Pirkka');
     expect(SEED_FOODS.find((f) => f.id === 'pakastekasvikset')?.brand).toBe('Apetit Kesäpöytä');
     expect(ids).not.toContain('star-nutrition-soy-isolate');

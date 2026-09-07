@@ -1,6 +1,6 @@
 {
-  "source": "Kost nutrition coach",
-  "note": "Shared-box sample-training-day.json was not on this VM. Snack 1 A/B and targets are from Kost; other meals match the seeded Kost staples.",
+  "source": "Linda MyFitnessPal 2026-09-07 plus Kost snack alts",
+  "note": "Training-day meals match Linda’s branded today log. Kost Snack 1 A/B stay as alternates.",
   "targets": { "kcal": 2050, "protein": 125, "carbs": 265, "fat": 60 },
   "slots": [
     { "id": "breakfast", "label_en": "Breakfast" },
@@ -11,36 +11,70 @@
   ],
   "meals": [
     {
-      "id": "seed-aamiainen-proteiinipuuro",
-      "name": "Protein porridge",
+      "id": "seed-breakfast-linda-mfp",
+      "name": "Elovena oats + soy isolate",
       "meal_slot": "breakfast",
       "training_day": true,
       "items": [
-        { "food_id": "kaurahiutaleet", "amount": 50, "unit": "g" },
-        { "food_id": "alpro-go-on-plain", "amount": 200, "unit": "g" },
-        { "food_id": "herneproteiini", "amount": 25, "unit": "g" },
-        { "food_id": "mustikat-pakaste", "amount": 80, "unit": "g" },
-        { "food_id": "maapähkinävoi", "amount": 12, "unit": "g" }
+        { "food_id": "soija-isolaatti-suklaa", "amount": 40, "unit": "g" },
+        { "food_id": "kaurahiutaleet", "amount": 36, "unit": "g" },
+        { "food_id": "elovena-kaurajuoma", "amount": 100, "unit": "ml" },
+        { "food_id": "espresso", "amount": 1, "unit": "piece" },
+        { "food_id": "elovena-kaurajuoma-kahvi", "amount": 100, "unit": "ml" },
+        { "food_id": "pirkka-puolukka", "amount": 30, "unit": "g" },
+        { "food_id": "mustikat-pakaste", "amount": 30, "unit": "g" }
       ]
     },
     {
-      "id": "seed-lounas-linssi-munat",
-      "name": "Lentils + eggs",
+      "id": "seed-lunch-linda-mfp",
+      "name": "Apetit mix + sweet potato",
       "meal_slot": "lunch",
       "training_day": true,
       "items": [
-        { "food_id": "muna", "amount": 2, "unit": "piece" },
-        { "food_id": "linssit-keitetty", "amount": 150, "unit": "g" },
-        { "food_id": "riisi-keitetty", "amount": 150, "unit": "g" },
-        { "food_id": "pakastekasvikset", "amount": 200, "unit": "g" },
-        { "food_id": "oliiviöljy", "amount": 5, "unit": "g" }
+        { "food_id": "pakastekasvikset", "amount": 300, "unit": "g" },
+        { "food_id": "sweet-potato", "amount": 75, "unit": "g" },
+        { "food_id": "avocado", "amount": 45, "unit": "g" },
+        { "food_id": "herneproteiini", "amount": 40, "unit": "g" }
+      ]
+    },
+    {
+      "id": "seed-snack-linda-mfp",
+      "name": "Banana + soy + Huel",
+      "meal_slot": "snack",
+      "training_day": true,
+      "items": [
+        { "food_id": "banaani", "amount": 150, "unit": "g" },
+        { "food_id": "soija-isolaatti-suklaa", "amount": 40, "unit": "g" },
+        { "food_id": "huel-black-chocolate", "amount": 90, "unit": "g" }
+      ]
+    },
+    {
+      "id": "seed-dinner-linda-mfp",
+      "name": "Pea protein + greens + hapankorppu",
+      "meal_slot": "dinner",
+      "training_day": true,
+      "items": [
+        { "food_id": "herneproteiini", "amount": 23, "unit": "g" },
+        { "food_id": "huel-daily-greens", "amount": 10, "unit": "g" },
+        { "food_id": "oululainen-hapankorppu", "amount": 11, "unit": "g" }
+      ]
+    },
+    {
+      "id": "seed-evening-linda-mfp",
+      "name": "Fazer Aito + walnuts",
+      "meal_slot": "evening_snack",
+      "training_day": true,
+      "items": [
+        { "food_id": "fazer-aito-raspberry", "amount": 200, "unit": "g" },
+        { "food_id": "pirkka-puolukka", "amount": 20, "unit": "g" },
+        { "food_id": "sallinen-walnuts", "amount": 23, "unit": "g" }
       ]
     },
     {
       "id": "seed-valipala-banaani-harkis",
       "name": "Banana + Härkis",
       "meal_slot": "snack",
-      "training_day": true,
+      "training_day": false,
       "items": [
         { "food_id": "banaani", "amount": 120, "unit": "g" },
         { "food_id": "harkis-original", "amount": 100, "unit": "g" }
@@ -55,29 +89,6 @@
         { "food_id": "herneproteiini", "amount": 25, "unit": "g" },
         { "food_id": "omena", "amount": 150, "unit": "g" },
         { "food_id": "maapähkinävoi", "amount": 12, "unit": "g" }
-      ]
-    },
-    {
-      "id": "seed-paivallinen-kirjolohi",
-      "name": "Rainbow trout + couscous",
-      "meal_slot": "dinner",
-      "training_day": true,
-      "items": [
-        { "food_id": "kirjolohi", "amount": 150, "unit": "g" },
-        { "food_id": "kuskus", "amount": 150, "unit": "g" },
-        { "food_id": "kikherneet", "amount": 80, "unit": "g" },
-        { "food_id": "pakastekasvikset", "amount": 200, "unit": "g" },
-        { "food_id": "oliiviöljy", "amount": 3, "unit": "g" }
-      ]
-    },
-    {
-      "id": "seed-iltapala-omena-suklaa",
-      "name": "Apple + dark chocolate",
-      "meal_slot": "evening_snack",
-      "training_day": true,
-      "items": [
-        { "food_id": "omena", "amount": 150, "unit": "g" },
-        { "food_id": "tumma-suklaa", "amount": 20, "unit": "g" }
       ]
     }
   ]

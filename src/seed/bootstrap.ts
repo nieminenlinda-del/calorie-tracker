@@ -7,7 +7,7 @@ import { templatesRepo } from '../repos/templatesRepo';
 import { SEED_FOODS } from './foods';
 import { SEED_TEMPLATES } from './templates';
 
-export const SEED_VERSION = 3;
+export const SEED_VERSION = 4;
 
 async function pruneNonSeedCatalog(): Promise<void> {
   const seedIds = new Set(SEED_FOODS.map((food) => food.id));

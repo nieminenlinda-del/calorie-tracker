@@ -26,7 +26,7 @@ function toTemplate(meal: SampleMealJson): MealTemplate {
 
 const meals = sampleDay.meals as SampleMealJson[];
 
-/** Sample training-day meals plus Kost Snack 1 option B as an alternate template. */
+/** Linda’s 2026-09-07 meals as training-day defaults; Kost Snack 1 A/B as alternates. */
 export const SEED_TEMPLATES: MealTemplate[] = meals.map(toTemplate);
 
 export const TRAINING_DAY_TEMPLATES: MealTemplate[] = meals

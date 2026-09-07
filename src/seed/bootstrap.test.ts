@@ -69,7 +69,7 @@ describe('bootstrapDb', () => {
       SEED_FOODS.length,
     );
     expect(await templatesRepo.getById('seed-iltapala-fazer-aito')).toBeUndefined();
-    expect(await templatesRepo.getById('seed-iltapala-omena-suklaa')).toBeDefined();
+    expect(await templatesRepo.getById('seed-evening-linda-mfp')).toBeDefined();
     const db = await getDb();
     expect((await db.get('meta', 'seed_version'))?.value).toBe(SEED_VERSION);
   });

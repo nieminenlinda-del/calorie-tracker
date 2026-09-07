@@ -27,6 +27,7 @@ describe('Kost seed JSON', () => {
       expect(food?.name_en).toBe(row.name_en);
     }
     expect(SEED_FOODS.find((f) => f.id === 'kaurahiutaleet')?.brand).toBe('Elovena');
+    expect(SEED_FOODS.find((f) => f.id === 'kaurahiutaleet')?.name_fi).toBe('Täysjyvä Kaurahiutale');
     expect(SEED_FOODS.find((f) => f.id === 'herneproteiini')?.brand).toBe('SAFKAsuikale');
     expect(SEED_FOODS.find((f) => f.id === 'soija-isolaatti-suklaa')?.brand).toBe('Star Nutrition');
   });
