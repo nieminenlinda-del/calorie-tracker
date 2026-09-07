@@ -93,10 +93,11 @@ describe('training-day templates', () => {
     }
   });
 
-  it('does not seed dairy, bread, tofu, or land meat', () => {
-    const banned = /maito|leipä|tofu|kana\b|nauta|sika|jauheliha|\bdairy\b|\bbread\b|chicken|beef/i;
+  it('does not seed dairy, bread, näkkileipä, tofu, or land meat', () => {
+    const banned =
+      /maito|leipä|näkkileipä|hapankorppu|crispbread|tofu|kana\b|nauta|sika|jauheliha|\bdairy\b|\bbread\b|chicken|beef/i;
     for (const food of SEED_FOODS) {
-      const label = `${food.name_fi} ${food.name_en ?? ''}`;
+      const label = `${food.name_fi} ${food.name_en ?? ''} ${food.brand ?? ''}`;
       expect(banned.test(label), label).toBe(false);
       expect(food.excluded_by_flags).toEqual([]);
     }
@@ -127,9 +128,10 @@ describe('diet catalog', () => {
     expect(allowed.some((f) => f.id === 'kirjolohi')).toBe(true);
   });
 
-  it('finds Finnish names and brands', () => {
-    const hits = searchFoods(SEED_FOODS, 'härkis');
-    expect(hits.map((f) => f.id)).toContain('harkis-original');
+  it('finds Finnish names, English UI names, and aliases', () => {
+    expect(searchFoods(SEED_FOODS, 'härkis').map((f) => f.id)).toContain('harkis-original');
+    expect(searchFoods(SEED_FOODS, 'oats').map((f) => f.id)).toContain('kaurahiutaleet');
+    expect(searchFoods(SEED_FOODS, 'pulled oats').map((f) => f.id)).toContain('nyhtokaura');
   });
 });
 
@@ -159,9 +161,9 @@ describe('macro helpers', () => {
 });
 
 describe('seed catalog shape', () => {
-  it('uses piece basis only for eggs and espresso', () => {
+  it('uses piece basis only for eggs', () => {
     const pieceFoods = SEED_FOODS.filter((f: Food) => f.basis === 'per_piece');
-    expect(pieceFoods.map((f) => f.id).sort()).toEqual(['espresso', 'muna']);
+    expect(pieceFoods.map((f) => f.id)).toEqual(['muna']);
   });
 
   it('gives every staple an English phone label', () => {
@@ -170,22 +172,45 @@ describe('seed catalog shape', () => {
     }
   });
 
-  it('includes the locked staple list', () => {
-    expect(SEED_FOODS.length).toBeGreaterThanOrEqual(24);
-    expect(SEED_FOODS.map((f) => f.id)).toEqual(expect.arrayContaining([
+  it('includes Kost staples and no extra invented brands', () => {
+    const ids = SEED_FOODS.map((f) => f.id);
+    expect(ids).toEqual(expect.arrayContaining([
       'kaurahiutaleet',
+      'soija-isolaatti-suklaa',
       'herneproteiini',
-      'star-nutrition-soy-isolate',
       'alpro-go-on-plain',
+      'oddlygood-plain',
       'mustikat-pakaste',
       'maapähkinävoi',
       'muna',
+      'linssit-keitetty',
+      'riisi-keitetty',
+      'pakastekasvikset',
+      'oliiviöljy',
+      'banaani',
       'harkis-original',
-      'nyhtokaura',
+      'beanit',
+      'kikherneet',
+      'kuskus',
+      'kirjolohi',
+      'lohi',
+      'seiti',
+      'tonnikala-vedessa',
+      'peruna',
+      'omena',
       'tumma-suklaa',
-      'oululainen-hapankorppu',
+      'nyhtokaura',
+      'soijarouhe',
+    ]));
+    expect(ids).toHaveLength(27);
+    expect(ids).not.toEqual(expect.arrayContaining([
+      'star-nutrition-soy-isolate',
+      'elovena-kaurajuoma',
       'huel-black-chocolate',
+      'oululainen-hapankorppu',
       'fazer-aito-raspberry',
     ]));
+    const hay = SEED_FOODS.map((f) => `${f.name_en} ${f.brand ?? ''}`).join(' ');
+    expect(hay).not.toMatch(/Elovena|Star Nutrition|Huel|Oululainen|Fazer Aito|Sallinen|Apetit|Pirkka/i);
   });
 });

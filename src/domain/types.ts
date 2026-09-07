@@ -44,6 +44,7 @@ export interface Food {
   name_fi: string;
   name_en?: string;
   brand?: string;
+  aliases?: string[];
   serving_unit: ServingUnit;
   default_serving: number;
   kcal: number;
@@ -53,6 +54,8 @@ export interface Food {
   basis: MacroBasis;
   tags: string[];
   excluded_by_flags: DietFlag[];
+  /** Lower numbers sort first in the staple catalog (Kost priority list). */
+  search_priority?: number;
 }
 
 export interface FoodLog {

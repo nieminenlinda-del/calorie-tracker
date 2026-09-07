@@ -1,10 +1,10 @@
 import type { MealTemplate } from '../domain/types';
 
-/** Sample training-day meals using the seeded Finnish staples. */
+/** Sample training-day meals using Kost staples only. Snack 1 = banana + Härkis. */
 export const SEED_TEMPLATES: MealTemplate[] = [
   {
     id: 'seed-aamiainen-proteiinipuuro',
-    name: 'Proteiinipuuro',
+    name: 'Protein porridge',
     meal_slot: 'breakfast',
     items: [
       { food_id: 'kaurahiutaleet', amount: 50, unit: 'g' },
@@ -16,7 +16,7 @@ export const SEED_TEMPLATES: MealTemplate[] = [
   },
   {
     id: 'seed-lounas-linssi-munat',
-    name: 'Linssi + munat',
+    name: 'Lentils + eggs',
     meal_slot: 'lunch',
     items: [
       { food_id: 'muna', amount: 2, unit: 'piece' },
@@ -28,17 +28,16 @@ export const SEED_TEMPLATES: MealTemplate[] = [
   },
   {
     id: 'seed-valipala-banaani-harkis',
-    name: 'Banaani + Härkis',
+    name: 'Banana + Härkis',
     meal_slot: 'snack',
     items: [
       { food_id: 'banaani', amount: 120, unit: 'g' },
-      { food_id: 'harkis-original', amount: 120, unit: 'g' },
-      { food_id: 'omena', amount: 100, unit: 'g' },
+      { food_id: 'harkis-original', amount: 100, unit: 'g' },
     ],
   },
   {
     id: 'seed-paivallinen-kirjolohi',
-    name: 'Kirjolohi + kuskus',
+    name: 'Rainbow trout + couscous',
     meal_slot: 'dinner',
     items: [
       { food_id: 'kirjolohi', amount: 150, unit: 'g' },
@@ -49,13 +48,12 @@ export const SEED_TEMPLATES: MealTemplate[] = [
     ],
   },
   {
-    id: 'seed-iltapala-fazer-aito',
-    name: 'Evening snack',
+    id: 'seed-iltapala-omena-suklaa',
+    name: 'Apple + dark chocolate',
     meal_slot: 'evening_snack',
     items: [
-      { food_id: 'fazer-aito-raspberry', amount: 200, unit: 'g' },
-      { food_id: 'pirkka-puolukka', amount: 20, unit: 'g' },
-      { food_id: 'sallinen-walnuts', amount: 23, unit: 'g' },
+      { food_id: 'omena', amount: 150, unit: 'g' },
+      { food_id: 'tumma-suklaa', amount: 20, unit: 'g' },
     ],
   },
 ];
