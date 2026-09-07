@@ -89,59 +89,60 @@ export function AddFoodPage() {
         </TabButton>
       </div>
 
-      {tab === 'catalog' ? (
-        selected ? (
-          <div className="template-card">
-            <h2 className="h1">{foodDisplayName(selected)}</h2>
-            <p className="lede">
-              {selected.name_fi !== foodDisplayName(selected) ? `${selected.name_fi}` : selected.name_en}
-              {selected.brand ? ` · ${selected.brand}` : ''} · {selected.kcal} kcal /{' '}
-              {selected.basis === 'per_piece'
-                ? t('add.perPiece')
-                : selected.basis === 'per_ml'
-                  ? t('add.per100ml')
-                  : t('add.per100g')}
-            </p>
-            <AmountStepper value={amount} unit={selected.serving_unit} onChange={setAmount} />
-            {preview ? (
-              <div className="preview">
-                <div>
-                  <b>{formatKcal(preview.kcal)}</b>
-                  <span>kcal</span>
-                </div>
-                <div>
-                  <b>{formatGrams(preview.protein)}</b>
-                  <span>{t('macros.p')}</span>
-                </div>
-                <div>
-                  <b>{formatGrams(preview.carbs)}</b>
-                  <span>{t('macros.c')}</span>
-                </div>
-                <div>
-                  <b>{formatGrams(preview.fat)}</b>
-                  <span>{t('macros.f')}</span>
-                </div>
+      {tab !== 'templates' && selected ? (
+        <div className="template-card">
+          <h2 className="h1">{foodDisplayName(selected)}</h2>
+          <p className="lede">
+            {selected.name_fi !== foodDisplayName(selected) ? `${selected.name_fi}` : selected.name_en}
+            {selected.brand ? ` · ${selected.brand}` : ''} · {selected.kcal} kcal /{' '}
+            {selected.basis === 'per_piece'
+              ? t('add.perPiece')
+              : selected.basis === 'per_ml'
+                ? t('add.per100ml')
+                : t('add.per100g')}
+          </p>
+          <AmountStepper value={amount} unit={selected.serving_unit} onChange={setAmount} />
+          {preview ? (
+            <div className="preview">
+              <div>
+                <b>{formatKcal(preview.kcal)}</b>
+                <span>kcal</span>
               </div>
-            ) : null}
-            <div className="row-btns">
-              <button type="button" className="ghost" onClick={() => setSelectedId(null)}>
-                {t('add.back')}
-              </button>
-              <button
-                type="button"
-                className="primary"
-                onClick={async () => {
-                  await logCatalogFood({ date, meal_slot: slot, food: selected, amount });
-                  await refresh();
-                  toast(t('toast.foodAdded', { name: foodDisplayName(selected) }));
-                  navigate('/');
-                }}
-              >
-                {t('add.add')}
-              </button>
+              <div>
+                <b>{formatGrams(preview.protein)}</b>
+                <span>{t('macros.p')}</span>
+              </div>
+              <div>
+                <b>{formatGrams(preview.carbs)}</b>
+                <span>{t('macros.c')}</span>
+              </div>
+              <div>
+                <b>{formatGrams(preview.fat)}</b>
+                <span>{t('macros.f')}</span>
+              </div>
             </div>
+          ) : null}
+          <div className="row-btns">
+            <button type="button" className="ghost" onClick={() => setSelectedId(null)}>
+              {t('add.back')}
+            </button>
+            <button
+              type="button"
+              className="primary"
+              onClick={async () => {
+                await logCatalogFood({ date, meal_slot: slot, food: selected, amount });
+                await refresh();
+                toast(t('toast.foodAdded', { name: foodDisplayName(selected) }));
+                navigate('/');
+              }}
+            >
+              {t('add.add')}
+            </button>
           </div>
-        ) : (
+        </div>
+      ) : null}
+
+      {tab === 'catalog' && !selected ? (
           <div>
             <input
               className="search"
@@ -191,24 +192,41 @@ export function AddFoodPage() {
               />
             ))}
           </div>
-        )
       ) : null}
 
-      {tab === 'quick' ? (
-        <QuickAddForm
-          onSubmit={async (values) => {
-            const { food } = await logQuickAddFood({
-              date,
-              meal_slot: slot,
-              name: values.name,
-              amount: values.amount,
-              ...macrosFromCustom(values),
-            });
-            await refresh();
-            toast(t('toast.quickAddSaved', { name: food.name_en ?? food.name_fi }));
-            navigate('/');
-          }}
-        />
+      {tab === 'quick' && !selected ? (
+        <div>
+          {myFoods.length > 0 ? (
+            <>
+              <div className="section-label">{t('add.myFoods')}</div>
+              {myFoods.map((food) => (
+                <FoodButton
+                  key={`quick-${food.id}`}
+                  food={food}
+                  onPick={() => {
+                    setSelectedId(food.id);
+                    setAmount(food.default_serving);
+                  }}
+                />
+              ))}
+            </>
+          ) : null}
+          {myFoods.length > 0 ? <div className="section-label">{t('add.quickNew')}</div> : null}
+          <QuickAddForm
+            onSubmit={async (values) => {
+              const { food } = await logQuickAddFood({
+                date,
+                meal_slot: slot,
+                name: values.name,
+                amount: values.amount,
+                ...macrosFromCustom(values),
+              });
+              await refresh();
+              toast(t('toast.quickAddSaved', { name: food.name_en ?? food.name_fi }));
+              navigate('/');
+            }}
+          />
+        </div>
       ) : null}
 
       {tab === 'templates' ? (

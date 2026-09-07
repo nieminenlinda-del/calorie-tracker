@@ -106,6 +106,29 @@ describe('logQuickAddFood', () => {
     expect(log.food_id).toBe(food.id);
   });
 
+  it('is still there after closing and reopening IndexedDB', async () => {
+    const { food } = await logQuickAddFood({
+      date: '2026-09-07',
+      meal_slot: 'snack',
+      name: 'Huel shake',
+      amount: 90,
+      kcal: 400,
+      protein: 40,
+      carbs: 24,
+      fat: 17,
+    });
+    await resetDbConnection();
+    const stored = await foodsRepo.getById(food.id);
+    expect(stored).toMatchObject({
+      id: food.id,
+      name_fi: 'Huel shake',
+      tags: [QUICK_FOOD_TAG],
+      default_serving: 90,
+    });
+    const listed = (await foodsRepo.getAll()).filter(isQuickFood);
+    expect(listed.map((item) => item.id)).toContain(food.id);
+  });
+
   it('leaves one-shot custom logs (MFP-style) out of the foods library', async () => {
     await logCustomFood({
       date: '2026-09-07',
