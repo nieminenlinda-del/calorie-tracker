@@ -6,6 +6,7 @@ import { MacroSummary } from '../components/MacroSummary';
 import { addDays, formatHelsinkiDate, isToday, previousDay } from '../domain/dates';
 import { applyTemplate, copyLogsToDate } from '../domain/logging';
 import { MEAL_SLOTS, type MealSlot } from '../domain/types';
+import { TRAINING_DAY_TEMPLATES } from '../seed/templates';
 import { mealSlotLabel, useLanguage } from '../i18n';
 import { logsRepo } from '../repos';
 import { useTracker } from '../state/TrackerContext';
@@ -50,7 +51,8 @@ export function TodayPage() {
   }
 
   async function applyTrainingDay() {
-    const seeded = templates.filter((template) => template.id.startsWith('seed-'));
+    const trainingIds = new Set(TRAINING_DAY_TEMPLATES.map((template) => template.id));
+    const seeded = templates.filter((template) => trainingIds.has(template.id));
     for (const template of seeded) {
       await applyTemplate({ template, date });
     }

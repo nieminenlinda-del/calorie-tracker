@@ -5,6 +5,7 @@ import { formatAdjustmentHint } from '../domain/energyTarget';
 import { unitLabel } from '../domain/macros';
 import { trainingDayLabel } from '../health/trainingDay';
 import { logLabel } from '../lib/labels';
+import { SAMPLE_DAY_SLOT_LABELS } from '../seed/templates';
 import {
   DEFAULT_LOCALE,
   LOCALE_STORAGE_KEY,
@@ -15,6 +16,7 @@ import {
   setLocale,
   t,
 } from './locale';
+import { MEAL_SLOTS } from '../domain/types';
 
 afterEach(() => {
   localStorage.removeItem(LOCALE_STORAGE_KEY);
@@ -27,8 +29,14 @@ describe('locale', () => {
     expect(getLocale()).toBe('en');
     expect(t('nav.today')).toBe('Today');
     expect(mealSlotLabel('breakfast')).toBe('Breakfast');
-    expect(mealSlotLabel('snack')).toBe('Snack 1');
-    expect(mealSlotLabel('evening_snack')).toBe('Snack 2');
+    expect(MEAL_SLOTS.map((slot) => mealSlotLabel(slot))).toEqual([
+      'Breakfast',
+      'Lunch',
+      'Snack 1',
+      'Dinner',
+      'Snack 2',
+    ]);
+    expect(SAMPLE_DAY_SLOT_LABELS).toEqual(['Breakfast', 'Lunch', 'Snack 1', 'Dinner', 'Snack 2']);
     expect(unitLabel('piece')).toBe('pcs');
     expect(trainingDayLabel('2026-09-01')).toBe('training B');
     expect(trainingDayLabel('2026-09-02')).toBe('rest');

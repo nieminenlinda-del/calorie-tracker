@@ -1,0 +1,84 @@
+{
+  "source": "Kost nutrition coach",
+  "note": "Shared-box sample-training-day.json was not on this VM. Snack 1 A/B and targets are from Kost; other meals match the seeded Kost staples.",
+  "targets": { "kcal": 2050, "protein": 125, "carbs": 265, "fat": 60 },
+  "slots": [
+    { "id": "breakfast", "label_en": "Breakfast" },
+    { "id": "lunch", "label_en": "Lunch" },
+    { "id": "snack", "label_en": "Snack 1" },
+    { "id": "dinner", "label_en": "Dinner" },
+    { "id": "evening_snack", "label_en": "Snack 2" }
+  ],
+  "meals": [
+    {
+      "id": "seed-aamiainen-proteiinipuuro",
+      "name": "Protein porridge",
+      "meal_slot": "breakfast",
+      "training_day": true,
+      "items": [
+        { "food_id": "kaurahiutaleet", "amount": 50, "unit": "g" },
+        { "food_id": "alpro-go-on-plain", "amount": 200, "unit": "g" },
+        { "food_id": "herneproteiini", "amount": 25, "unit": "g" },
+        { "food_id": "mustikat-pakaste", "amount": 80, "unit": "g" },
+        { "food_id": "maapähkinävoi", "amount": 12, "unit": "g" }
+      ]
+    },
+    {
+      "id": "seed-lounas-linssi-munat",
+      "name": "Lentils + eggs",
+      "meal_slot": "lunch",
+      "training_day": true,
+      "items": [
+        { "food_id": "muna", "amount": 2, "unit": "piece" },
+        { "food_id": "linssit-keitetty", "amount": 150, "unit": "g" },
+        { "food_id": "riisi-keitetty", "amount": 150, "unit": "g" },
+        { "food_id": "pakastekasvikset", "amount": 200, "unit": "g" },
+        { "food_id": "oliiviöljy", "amount": 5, "unit": "g" }
+      ]
+    },
+    {
+      "id": "seed-valipala-banaani-harkis",
+      "name": "Banana + Härkis",
+      "meal_slot": "snack",
+      "training_day": true,
+      "items": [
+        { "food_id": "banaani", "amount": 120, "unit": "g" },
+        { "food_id": "harkis-original", "amount": 100, "unit": "g" }
+      ]
+    },
+    {
+      "id": "seed-valipala-proteiini-omena",
+      "name": "Protein + apple + PB",
+      "meal_slot": "snack",
+      "training_day": false,
+      "items": [
+        { "food_id": "herneproteiini", "amount": 25, "unit": "g" },
+        { "food_id": "omena", "amount": 150, "unit": "g" },
+        { "food_id": "maapähkinävoi", "amount": 12, "unit": "g" }
+      ]
+    },
+    {
+      "id": "seed-paivallinen-kirjolohi",
+      "name": "Rainbow trout + couscous",
+      "meal_slot": "dinner",
+      "training_day": true,
+      "items": [
+        { "food_id": "kirjolohi", "amount": 150, "unit": "g" },
+        { "food_id": "kuskus", "amount": 150, "unit": "g" },
+        { "food_id": "kikherneet", "amount": 80, "unit": "g" },
+        { "food_id": "pakastekasvikset", "amount": 200, "unit": "g" },
+        { "food_id": "oliiviöljy", "amount": 3, "unit": "g" }
+      ]
+    },
+    {
+      "id": "seed-iltapala-omena-suklaa",
+      "name": "Apple + dark chocolate",
+      "meal_slot": "evening_snack",
+      "training_day": true,
+      "items": [
+        { "food_id": "omena", "amount": 150, "unit": "g" },
+        { "food_id": "tumma-suklaa", "amount": 20, "unit": "g" }
+      ]
+    }
+  ]
+}

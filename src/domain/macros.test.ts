@@ -4,7 +4,7 @@ import { computeDailySummary } from '../domain/summary';
 import { filterCatalog, searchFoods } from '../domain/diet';
 import { addDays } from '../domain/dates';
 import { SEED_FOODS } from '../seed/foods';
-import { SEED_TEMPLATES } from '../seed/templates';
+import { SEED_TEMPLATES, TRAINING_DAY_TEMPLATES, SAMPLE_DAY_TARGETS } from '../seed/templates';
 import { DEFAULT_DIET_FLAGS, DEFAULT_TARGETS, MEAL_SLOTS, type Food, type UserTargets } from '../domain/types';
 
 const oats = SEED_FOODS.find((f) => f.id === 'kaurahiutaleet')!;
@@ -25,6 +25,11 @@ describe('meal slots', () => {
     expect(MEAL_SLOTS).toEqual(['breakfast', 'lunch', 'snack', 'dinner', 'evening_snack']);
     expect(MEAL_SLOTS.indexOf('snack')).toBeGreaterThan(MEAL_SLOTS.indexOf('lunch'));
     expect(MEAL_SLOTS.indexOf('snack')).toBeLessThan(MEAL_SLOTS.indexOf('dinner'));
+  });
+
+  it('keeps Kost daily targets', () => {
+    expect(DEFAULT_TARGETS).toEqual({ kcal: 2050, protein: 125, carbs: 265, fat: 60 });
+    expect(SAMPLE_DAY_TARGETS).toEqual(DEFAULT_TARGETS);
   });
 });
 
@@ -105,7 +110,7 @@ describe('training-day templates', () => {
 
   it('logs a full training day near target macros', () => {
     const byId = new Map(SEED_FOODS.map((f) => [f.id, f]));
-    const logs = SEED_TEMPLATES.filter((template) => template.meal_slot !== 'evening_snack').flatMap(
+    const logs = TRAINING_DAY_TEMPLATES.filter((template) => template.meal_slot !== 'evening_snack').flatMap(
       (template) =>
         template.items.map((item) => {
           const food = byId.get(item.food_id)!;
@@ -118,6 +123,19 @@ describe('training-day templates', () => {
     expect(summary.protein).toBeGreaterThan(120);
     expect(summary.fat).toBeGreaterThan(50);
     expect(summary.fat).toBeLessThan(70);
+  });
+
+  it('keeps Snack 1 option A as the training-day default and B as an alternate', () => {
+    const snackTemplates = SEED_TEMPLATES.filter((template) => template.meal_slot === 'snack');
+    expect(snackTemplates.map((template) => template.id)).toEqual([
+      'seed-valipala-banaani-harkis',
+      'seed-valipala-proteiini-omena',
+    ]);
+    expect(TRAINING_DAY_TEMPLATES.filter((template) => template.meal_slot === 'snack')).toHaveLength(1);
+    expect(TRAINING_DAY_TEMPLATES.find((template) => template.meal_slot === 'snack')?.items).toEqual([
+      { food_id: 'banaani', amount: 120, unit: 'g' },
+      { food_id: 'harkis-original', amount: 100, unit: 'g' },
+    ]);
   });
 });
 
