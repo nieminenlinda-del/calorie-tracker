@@ -5,7 +5,7 @@ import { filterCatalog, searchFoods } from '../domain/diet';
 import { addDays } from '../domain/dates';
 import { SEED_FOODS } from '../seed/foods';
 import { SEED_TEMPLATES } from '../seed/templates';
-import { DEFAULT_DIET_FLAGS, DEFAULT_TARGETS, type Food, type UserTargets } from '../domain/types';
+import { DEFAULT_DIET_FLAGS, DEFAULT_TARGETS, MEAL_SLOTS, type Food, type UserTargets } from '../domain/types';
 
 const oats = SEED_FOODS.find((f) => f.id === 'kaurahiutaleet')!;
 const egg = SEED_FOODS.find((f) => f.id === 'muna')!;
@@ -19,6 +19,14 @@ const targets: UserTargets = {
   updated_at: '2026-09-03T00:00:00.000Z',
   adjust_for_training_day: false,
 };
+
+describe('meal slots', () => {
+  it('puts a mid-afternoon snack between lunch and dinner', () => {
+    expect(MEAL_SLOTS).toEqual(['breakfast', 'lunch', 'snack', 'dinner', 'evening_snack']);
+    expect(MEAL_SLOTS.indexOf('snack')).toBeGreaterThan(MEAL_SLOTS.indexOf('lunch'));
+    expect(MEAL_SLOTS.indexOf('snack')).toBeLessThan(MEAL_SLOTS.indexOf('dinner'));
+  });
+});
 
 describe('macrosPer100g', () => {
   it('scales a portion back to per-100 g', () => {
