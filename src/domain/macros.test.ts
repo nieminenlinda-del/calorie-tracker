@@ -156,10 +156,24 @@ describe('training-day templates', () => {
 });
 
 describe('diet catalog', () => {
-  it('hides eggs without eggs_ok', () => {
-    const allowed = filterCatalog(SEED_FOODS, ['dairy_free', 'fish_ok']);
-    expect(allowed.some((f) => f.id === 'muna')).toBe(false);
-    expect(allowed.some((f) => f.id === 'kirjolohi')).toBe(true);
+  it('keeps hapankorppu visible under no_soft_bread and hides soft bread', () => {
+    const roll: Food = {
+      id: 'soft-roll',
+      name_fi: 'Sämpylä',
+      name_en: 'Soft roll',
+      serving_unit: 'g',
+      default_serving: 50,
+      kcal: 260,
+      protein: 8,
+      carbs: 50,
+      fat: 3,
+      basis: 'per_100g',
+      tags: ['soft_bread'],
+      excluded_by_flags: ['no_soft_bread'],
+    };
+    const allowed = filterCatalog([...SEED_FOODS, roll], [...DEFAULT_DIET_FLAGS]);
+    expect(allowed.some((f) => f.id === 'oululainen-hapankorppu')).toBe(true);
+    expect(allowed.some((f) => f.id === 'soft-roll')).toBe(false);
   });
 
   it('finds Finnish names, English UI names, and aliases', () => {

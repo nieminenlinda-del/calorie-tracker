@@ -6,7 +6,7 @@ describe('Kost seed JSON', () => {
   it('maps every staple from the final Kost JSON', () => {
     const rows = SEED_FOODS_JSON.staples as SeedStapleJson[];
     expect(rows).toHaveLength(SEED_FOODS.length);
-    expect(SEED_FOODS_JSON.hapankorppu_status).toBe('included_pending_linda_no_bread_confirm');
+    expect(SEED_FOODS_JSON.hapankorppu_status).toBe('approved_small_exception_10_15g');
     for (const row of rows) {
       const food = SEED_FOODS.find((item) => item.id === row.id);
       expect(food, row.name_en).toBeDefined();
@@ -47,8 +47,8 @@ describe('Kost seed JSON', () => {
     expect(SEED_FOODS.find((f) => f.id === 'harkis-original')?.tags).toContain('secondary');
     expect(SEED_FOODS.find((f) => f.id === 'nyhtokaura')?.tags).toContain('secondary');
     expect(SEED_FOODS.find((f) => f.id === 'soijarouhe')?.tags).toContain('secondary');
-    expect(SEED_FOODS.find((f) => f.id === 'oululainen-hapankorppu')?.tags).toContain(
-      'hapankorppu_exception_small',
+    expect(SEED_FOODS.find((f) => f.id === 'oululainen-hapankorppu')?.tags).toEqual(
+      expect.arrayContaining(['hapankorppu_exception_small', 'no_soft_bread']),
     );
   });
 });

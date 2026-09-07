@@ -16,7 +16,6 @@ export interface SeedStapleJson {
   priority: number;
   default_serving: number;
   tags: string[];
-  pending_no_bread_confirm?: boolean;
 }
 
 export const SEED_FOODS_JSON = seed;

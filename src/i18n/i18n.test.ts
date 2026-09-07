@@ -53,6 +53,7 @@ describe('locale', () => {
     expect(unitLabel('piece')).toBe('st');
     expect(trainingDayLabel('2026-09-01')).toBe('träning B');
     expect(t('flag.dairy_free')).toBe('Mjölkfri');
+    expect(t('flag.no_soft_bread')).toBe('Inget mjukt bröd');
     expect(document.documentElement.lang).toBe('sv');
   });
 

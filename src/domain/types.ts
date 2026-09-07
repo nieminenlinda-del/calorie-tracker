@@ -7,6 +7,7 @@ export const MEAL_SLOTS: MealSlot[] = ['breakfast', 'lunch', 'snack', 'dinner', 
 export type DietFlag =
   | 'dairy_free'
   | 'no_bread'
+  | 'no_soft_bread'
   | 'no_tofu'
   | 'eggs_ok'
   | 'fish_ok'
@@ -15,7 +16,7 @@ export type DietFlag =
 
 export const DEFAULT_DIET_FLAGS: DietFlag[] = [
   'dairy_free',
-  'no_bread',
+  'no_soft_bread',
   'no_tofu',
   'eggs_ok',
   'fish_ok',

@@ -104,7 +104,8 @@ const sv = {
   'settings.languageEn': 'English',
 
   'flag.dairy_free': 'Mjölkfri',
-  'flag.no_bread': 'Inget bröd',
+  'flag.no_bread': 'Inget mjukt bröd',
+  'flag.no_soft_bread': 'Inget mjukt bröd',
   'flag.no_tofu': 'Ingen tofu',
   'flag.eggs_ok': 'Ägg ok',
   'flag.fish_ok': 'Fisk ok',
@@ -273,7 +274,8 @@ const en: Record<MessageKey, string> = {
   'settings.languageEn': 'English',
 
   'flag.dairy_free': 'Dairy-free',
-  'flag.no_bread': 'No bread',
+  'flag.no_bread': 'No soft bread',
+  'flag.no_soft_bread': 'No soft bread',
   'flag.no_tofu': 'No tofu',
   'flag.eggs_ok': 'Eggs ok',
   'flag.fish_ok': 'Fish ok',

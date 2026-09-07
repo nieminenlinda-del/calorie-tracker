@@ -1,4 +1,4 @@
-import type { MealSlot } from '../domain/types';
+import type { DietFlag, MealSlot } from '../domain/types';
 import {
   DEFAULT_LOCALE,
   LOCALE_STORAGE_KEY,
@@ -102,16 +102,6 @@ export function mealSlotLabel(slot: MealSlot, locale?: Locale): string {
   return t(MEAL_KEYS[slot], undefined, locale);
 }
 
-export function flagLabel(
-  flag:
-    | 'dairy_free'
-    | 'no_bread'
-    | 'no_tofu'
-    | 'eggs_ok'
-    | 'fish_ok'
-    | 'no_other_meat'
-    | 'finnish_groceries',
-  locale?: Locale,
-): string {
+export function flagLabel(flag: DietFlag, locale?: Locale): string {
   return t(`flag.${flag}`, undefined, locale);
 }
