@@ -1,11 +1,15 @@
 import { getDb } from '../db/database';
 import type { Food } from '../domain/types';
 
+function catalogName(food: Food): string {
+  return food.name_en?.trim() || food.name_fi;
+}
+
 export const foodsRepo = {
   async getAll(): Promise<Food[]> {
     const db = await getDb();
     const foods = await db.getAll('foods');
-    return foods.sort((a, b) => a.name_fi.localeCompare(b.name_fi, 'fi'));
+    return foods.sort((a, b) => catalogName(a).localeCompare(catalogName(b), 'en'));
   },
 
   async getById(id: string): Promise<Food | undefined> {

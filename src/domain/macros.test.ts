@@ -156,11 +156,25 @@ describe('seed catalog shape', () => {
     expect(pieceFoods.map((f) => f.id).sort()).toEqual(['espresso', 'muna']);
   });
 
+  it('gives every staple an English phone label', () => {
+    for (const food of SEED_FOODS) {
+      expect(food.name_en?.trim().length, food.id).toBeGreaterThan(0);
+    }
+  });
+
   it('includes the locked staple list', () => {
     expect(SEED_FOODS.length).toBeGreaterThanOrEqual(24);
     expect(SEED_FOODS.map((f) => f.id)).toEqual(expect.arrayContaining([
       'kaurahiutaleet',
+      'herneproteiini',
       'star-nutrition-soy-isolate',
+      'alpro-go-on-plain',
+      'mustikat-pakaste',
+      'maapähkinävoi',
+      'muna',
+      'harkis-original',
+      'nyhtokaura',
+      'tumma-suklaa',
       'oululainen-hapankorppu',
       'huel-black-chocolate',
       'fazer-aito-raspberry',

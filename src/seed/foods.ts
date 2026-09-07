@@ -8,8 +8,11 @@ function staple(
 
 /**
  * Finnish grocery staples that match Linda's diet flags.
- * No dairy, bread, tofu, or land-meat items.
- * Macros are per 100 g unless noted (eggs per piece).
+ * English `name_en` is the phone UI label; `name_fi` is for grocery search.
+ * Brands are from Kost's seed list and Linda's named diary — not guessed
+ * from meal-aggregate MyFitnessPal nutrition.csv (no food names there).
+ * No dairy, tofu, land meat, or soft bread. Small hapankorppu is allowed.
+ * Macros are per 100 g unless noted (eggs and espresso per piece).
  */
 export const SEED_FOODS: Food[] = [
   staple({
@@ -204,7 +207,7 @@ export const SEED_FOODS: Food[] = [
   staple({
     id: 'nyhtokaura',
     name_fi: 'Nyhtökaura',
-    name_en: 'Pulled oats',
+    name_en: 'Nyhtökaura (pulled oats)',
     brand: 'Gold&Green',
     serving_unit: 'g',
     default_serving: 100,
@@ -218,7 +221,7 @@ export const SEED_FOODS: Food[] = [
   staple({
     id: 'kikherneet',
     name_fi: 'Kikherneet',
-    name_en: 'Chickpeas',
+    name_en: 'Chickpeas, cooked',
     serving_unit: 'g',
     default_serving: 80,
     kcal: 160,
@@ -231,7 +234,7 @@ export const SEED_FOODS: Food[] = [
   staple({
     id: 'kuskus',
     name_fi: 'Kuskus',
-    name_en: 'Couscous',
+    name_en: 'Couscous, cooked',
     serving_unit: 'g',
     default_serving: 150,
     kcal: 112,
@@ -283,7 +286,7 @@ export const SEED_FOODS: Food[] = [
   staple({
     id: 'tonnikala-vedessa',
     name_fi: 'Tonnikala vedessä',
-    name_en: 'Tuna in water',
+    name_en: 'Tuna in water (canned)',
     serving_unit: 'g',
     default_serving: 100,
     kcal: 90,
@@ -296,7 +299,7 @@ export const SEED_FOODS: Food[] = [
   staple({
     id: 'soijarouhe-kuiva',
     name_fi: 'Soijarouhe, kuiva',
-    name_en: 'Soy mince, dry',
+    name_en: 'Soy granules (dry)',
     serving_unit: 'g',
     default_serving: 30,
     kcal: 330,
@@ -309,7 +312,7 @@ export const SEED_FOODS: Food[] = [
   staple({
     id: 'peruna',
     name_fi: 'Peruna',
-    name_en: 'Potato',
+    name_en: 'Potato, boiled',
     serving_unit: 'g',
     default_serving: 200,
     kcal: 85,

@@ -34,6 +34,15 @@ afterEach(async () => {
 });
 
 describe('MyFitnessPal nutrition.csv', () => {
+  it('is meal aggregates only — no food-name column to seed a catalog from', () => {
+    const header = fixture.split('\n')[0].toLowerCase();
+    expect(header).toContain('date');
+    expect(header).toContain('meal');
+    expect(header).toContain('calories');
+    expect(header).not.toMatch(/\bfood\b/);
+    expect(header).not.toMatch(/\bname\b/);
+  });
+
   it('maps meals case-insensitively, including Snacks → snack', () => {
     expect(mapMfpMeal('Breakfast')).toBe('breakfast');
     expect(mapMfpMeal('LUNCH')).toBe('lunch');
