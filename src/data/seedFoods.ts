@@ -1,5 +1,6 @@
 import type { Food, MacroBasis } from '../domain/types';
 import seed from './ravinto-seed-foods.json';
+import lindaMfp from './linda-mfp-foods.json';
 
 /** Kost paste shape. App ids / servings / tags are filled in here, not invented in the JSON. */
 export interface SeedStapleJson {
@@ -191,6 +192,55 @@ const APP_FIELDS: Record<string, StapleAppFields> = {
 };
 
 export const SEED_FOODS_JSON = seed;
+export const LINDA_MFP_FOODS_JSON = lindaMfp;
+
+export interface LindaMfpFoodJson {
+  id: string;
+  replaces_id?: string;
+  name_en: string;
+  name_fi: string;
+  brand?: string;
+  aliases?: string[];
+  basis: MacroBasis;
+  kcal: number;
+  p: number;
+  c: number;
+  f: number;
+  default_serving: number;
+  tags: string[];
+}
+
+export function foodFromLindaMfp(row: LindaMfpFoodJson): Food {
+  const serving_unit = row.basis === 'per_piece' ? 'piece' : row.basis === 'per_ml' ? 'ml' : 'g';
+  return {
+    id: row.id,
+    name_fi: row.name_fi,
+    name_en: row.name_en,
+    brand: row.brand,
+    aliases: row.aliases,
+    serving_unit,
+    default_serving: row.default_serving,
+    kcal: row.kcal,
+    protein: row.p,
+    carbs: row.c,
+    fat: row.f,
+    basis: row.basis,
+    tags: row.tags,
+    excluded_by_flags: [],
+  };
+}
+
+export function mergeSeedFoods(kost: SeedStapleJson[], linda: LindaMfpFoodJson[]): Food[] {
+  const lindaFoods = linda.map(foodFromLindaMfp);
+  const replacedIds = new Set(linda.map((row) => row.replaces_id ?? row.id));
+  const kostRest = kost
+    .map((row, index) => stapleFromJson(row, index))
+    .filter((food) => !replacedIds.has(food.id));
+  return [...lindaFoods, ...kostRest].map((food, index) => ({
+    ...food,
+    search_priority: index,
+  }));
+}
 
 export function stapleFromJson(row: SeedStapleJson, index: number): Food {
   const app = APP_FIELDS[row.name_en];

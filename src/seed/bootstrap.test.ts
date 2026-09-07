@@ -25,16 +25,15 @@ afterEach(async () => {
 describe('bootstrapDb', () => {
   it('prunes leftover non-Kost catalog foods but keeps Quick Add foods', async () => {
     const leftover: Food = {
-      id: 'huel-black-chocolate',
-      name_fi: 'Huel Black Edition Chocolate',
-      name_en: 'Huel Black Edition chocolate',
-      brand: 'Huel',
+      id: 'invented-mfp-guess',
+      name_fi: 'Arvattu mfp-ruoka',
+      name_en: 'Invented MFP guess',
       serving_unit: 'g',
-      default_serving: 90,
-      kcal: 444,
-      protein: 44.4,
-      carbs: 26.7,
-      fat: 18.9,
+      default_serving: 50,
+      kcal: 200,
+      protein: 10,
+      carbs: 20,
+      fat: 8,
       basis: 'per_100g',
       tags: ['staple'],
       excluded_by_flags: [],
@@ -63,9 +62,9 @@ describe('bootstrapDb', () => {
 
     await bootstrapDb();
 
-    expect(await foodsRepo.getById('huel-black-chocolate')).toBeUndefined();
+    expect(await foodsRepo.getById('invented-mfp-guess')).toBeUndefined();
     expect(await foodsRepo.getById('quick-test')).toMatchObject({ name_en: 'My shake' });
-    expect(await foodsRepo.getById('kaurahiutaleet')).toMatchObject({ name_en: 'Oats' });
+    expect(await foodsRepo.getById('kaurahiutaleet')).toMatchObject({ name_en: 'Elovena wholegrain oats' });
     expect((await foodsRepo.getAll()).filter((food) => !food.tags.includes(QUICK_FOOD_TAG))).toHaveLength(
       SEED_FOODS.length,
     );

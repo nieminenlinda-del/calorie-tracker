@@ -98,12 +98,17 @@ describe('training-day templates', () => {
     }
   });
 
-  it('does not seed dairy, bread, näkkileipä, tofu, or land meat', () => {
-    const banned =
-      /maito|leipä|näkkileipä|hapankorppu|crispbread|tofu|kana\b|nauta|sika|jauheliha|\bdairy\b|\bbread\b|chicken|beef/i;
+  it('does not seed dairy, soft bread, tofu, or land meat', () => {
+    const banned = /maito|näkkileipä|tofu|kana\b|nauta|sika|jauheliha|\bdairy\b|chicken|beef|\bsoft bread\b/i;
     for (const food of SEED_FOODS) {
       const label = `${food.name_fi} ${food.name_en ?? ''} ${food.brand ?? ''}`;
+      if (food.tags.includes('hapankorppu_exception_small')) {
+        expect(food.default_serving).toBeGreaterThanOrEqual(10);
+        expect(food.default_serving).toBeLessThanOrEqual(15);
+        continue;
+      }
       expect(banned.test(label), label).toBe(false);
+      expect(/\bleipä\b/i.test(label), label).toBe(false);
       expect(food.excluded_by_flags).toEqual([]);
     }
   });
@@ -149,6 +154,8 @@ describe('diet catalog', () => {
   it('finds Finnish names, English UI names, and aliases', () => {
     expect(searchFoods(SEED_FOODS, 'härkis').map((f) => f.id)).toContain('harkis-original');
     expect(searchFoods(SEED_FOODS, 'oats').map((f) => f.id)).toContain('kaurahiutaleet');
+    expect(searchFoods(SEED_FOODS, 'star nutrition').map((f) => f.id)).toContain('soija-isolaatti-suklaa');
+    expect(searchFoods(SEED_FOODS, 'hapankorppu').map((f) => f.id)).toContain('oululainen-hapankorppu');
     expect(searchFoods(SEED_FOODS, 'pulled oats').map((f) => f.id)).toContain('nyhtokaura');
   });
 });
@@ -179,9 +186,9 @@ describe('macro helpers', () => {
 });
 
 describe('seed catalog shape', () => {
-  it('uses piece basis only for eggs', () => {
+  it('uses piece basis only for eggs and espresso', () => {
     const pieceFoods = SEED_FOODS.filter((f: Food) => f.basis === 'per_piece');
-    expect(pieceFoods.map((f) => f.id)).toEqual(['muna']);
+    expect(pieceFoods.map((f) => f.id).sort()).toEqual(['espresso', 'muna']);
   });
 
   it('gives every staple an English phone label', () => {
@@ -190,45 +197,35 @@ describe('seed catalog shape', () => {
     }
   });
 
-  it('includes Kost staples and no extra invented brands', () => {
+  it('prefers Linda MFP brands over Kost generics and keeps remaining staples', () => {
     const ids = SEED_FOODS.map((f) => f.id);
     expect(ids).toEqual(expect.arrayContaining([
       'kaurahiutaleet',
       'soija-isolaatti-suklaa',
       'herneproteiini',
-      'alpro-go-on-plain',
-      'oddlygood-plain',
-      'mustikat-pakaste',
-      'maapähkinävoi',
-      'muna',
-      'linssit-keitetty',
-      'riisi-keitetty',
-      'pakastekasvikset',
-      'oliiviöljy',
-      'banaani',
-      'harkis-original',
-      'beanit',
-      'kikherneet',
-      'kuskus',
-      'kirjolohi',
-      'lohi',
-      'seiti',
-      'tonnikala-vedessa',
-      'peruna',
-      'omena',
-      'tumma-suklaa',
-      'nyhtokaura',
-      'soijarouhe',
-    ]));
-    expect(ids).toHaveLength(27);
-    expect(ids).not.toEqual(expect.arrayContaining([
-      'star-nutrition-soy-isolate',
       'elovena-kaurajuoma',
+      'elovena-kaurajuoma-kahvi',
+      'espresso',
+      'pirkka-puolukka',
+      'mustikat-pakaste',
+      'pakastekasvikset',
+      'sweet-potato',
+      'avocado',
       'huel-black-chocolate',
+      'huel-daily-greens',
       'oululainen-hapankorppu',
       'fazer-aito-raspberry',
+      'sallinen-walnuts',
+      'banaani',
+      'alpro-go-on-plain',
+      'muna',
+      'harkis-original',
+      'kirjolohi',
+      'nyhtokaura',
     ]));
-    const hay = SEED_FOODS.map((f) => `${f.name_en} ${f.brand ?? ''}`).join(' ');
-    expect(hay).not.toMatch(/Elovena|Star Nutrition|Huel|Oululainen|Fazer Aito|Sallinen|Apetit|Pirkka/i);
+    expect(SEED_FOODS.find((f) => f.id === 'kaurahiutaleet')?.name_en).toBe('Elovena wholegrain oats');
+    expect(SEED_FOODS.find((f) => f.id === 'mustikat-pakaste')?.brand).toBe('Pirkka');
+    expect(SEED_FOODS.find((f) => f.id === 'pakastekasvikset')?.brand).toBe('Apetit Kesäpöytä');
+    expect(ids).not.toContain('star-nutrition-soy-isolate');
   });
 });
