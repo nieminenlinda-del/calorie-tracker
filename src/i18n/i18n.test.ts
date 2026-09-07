@@ -27,6 +27,8 @@ describe('locale', () => {
     expect(getLocale()).toBe('en');
     expect(t('nav.today')).toBe('Today');
     expect(mealSlotLabel('breakfast')).toBe('Breakfast');
+    expect(mealSlotLabel('snack')).toBe('Snack 1');
+    expect(mealSlotLabel('evening_snack')).toBe('Snack 2');
     expect(unitLabel('piece')).toBe('pcs');
     expect(trainingDayLabel('2026-09-01')).toBe('training B');
     expect(trainingDayLabel('2026-09-02')).toBe('rest');
@@ -38,6 +40,8 @@ describe('locale', () => {
     expect(localStorage.getItem(LOCALE_STORAGE_KEY)).toBe('sv');
     expect(t('nav.today')).toBe('Idag');
     expect(mealSlotLabel('dinner')).toBe('Middag');
+    expect(mealSlotLabel('snack')).toBe('Mellanmål 1');
+    expect(mealSlotLabel('evening_snack')).toBe('Mellanmål 2');
     expect(unitLabel('piece')).toBe('st');
     expect(trainingDayLabel('2026-09-01')).toBe('träning B');
     expect(t('flag.dairy_free')).toBe('Mjölkfri');

@@ -48,4 +48,14 @@ export const SEED_TEMPLATES: MealTemplate[] = [
       { food_id: 'oliiviöljy', amount: 3, unit: 'g' },
     ],
   },
+  {
+    id: 'seed-iltapala-fazer-aito',
+    name: 'Evening snack',
+    meal_slot: 'evening_snack',
+    items: [
+      { food_id: 'fazer-aito-raspberry', amount: 200, unit: 'g' },
+      { food_id: 'pirkka-puolukka', amount: 20, unit: 'g' },
+      { food_id: 'sallinen-walnuts', amount: 23, unit: 'g' },
+    ],
+  },
 ];

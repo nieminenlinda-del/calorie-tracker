@@ -11,6 +11,10 @@ const SLOT_BY_MEAL: Record<string, MealSlot> = {
   dinner: 'dinner',
   snack: 'snack',
   snacks: 'snack',
+  'snack 1': 'snack',
+  'snack 2': 'evening_snack',
+  'evening snack': 'evening_snack',
+  evening: 'evening_snack',
 };
 
 export function parseCsvRecords(text: string): Record<string, string>[] {

@@ -18,12 +18,10 @@ export function TodayPage() {
   const { t } = useLanguage();
 
   const bySlot = useMemo(() => {
-    const grouped: Record<MealSlot, typeof logs> = {
-      breakfast: [],
-      lunch: [],
-      dinner: [],
-      snack: [],
-    };
+    const grouped = Object.fromEntries(MEAL_SLOTS.map((slot) => [slot, [] as typeof logs])) as Record<
+      MealSlot,
+      typeof logs
+    >;
     for (const log of logs) grouped[log.meal_slot].push(log);
     return grouped;
   }, [logs]);

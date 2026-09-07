@@ -2,14 +2,22 @@ import type { Food, FoodLog } from '../domain/types';
 import { formatGrams, unitLabel } from '../domain/macros';
 import { t } from '../i18n/locale';
 
+export function foodDisplayName(food: Food): string {
+  return food.name_en?.trim() || food.name_fi;
+}
+
 export function foodLabel(food: Food): string {
-  return food.brand ? `${food.name_fi} · ${food.brand}` : food.name_fi;
+  const extra = [
+    food.brand,
+    food.name_fi !== foodDisplayName(food) ? food.name_fi : null,
+  ].filter(Boolean);
+  return extra.length > 0 ? extra.join(' · ') : foodDisplayName(food);
 }
 
 export function logLabel(log: FoodLog, foods: Food[]): string {
   if (log.custom_name) return log.custom_name;
   const food = foods.find((item) => item.id === log.food_id);
-  return food?.name_fi ?? t('meal.unknown');
+  return food ? foodDisplayName(food) : t('meal.unknown');
 }
 
 export function amountLabel(amount: number, unit: FoodLog['unit']): string {

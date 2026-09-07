@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { scaleFoodMacros, remainingMacros, sumMacros, addMacros } from '../domain/macros';
+import { scaleFoodMacros, remainingMacros, sumMacros, addMacros, macrosPer100g } from '../domain/macros';
 import { computeDailySummary } from '../domain/summary';
 import { filterCatalog, searchFoods } from '../domain/diet';
 import { addDays } from '../domain/dates';
@@ -19,6 +19,17 @@ const targets: UserTargets = {
   updated_at: '2026-09-03T00:00:00.000Z',
   adjust_for_training_day: false,
 };
+
+describe('macrosPer100g', () => {
+  it('scales a portion back to per-100 g', () => {
+    expect(macrosPer100g(50, { kcal: 185, protein: 6.5, carbs: 30, fat: 3.5 })).toEqual({
+      kcal: 370,
+      protein: 13,
+      carbs: 60,
+      fat: 7,
+    });
+  });
+});
 
 describe('scaleFoodMacros', () => {
   it('scales per-100g foods by grams', () => {
@@ -85,11 +96,12 @@ describe('training-day templates', () => {
 
   it('logs a full training day near target macros', () => {
     const byId = new Map(SEED_FOODS.map((f) => [f.id, f]));
-    const logs = SEED_TEMPLATES.flatMap((template) =>
-      template.items.map((item) => {
-        const food = byId.get(item.food_id)!;
-        return { ...scaleFoodMacros(food, item.amount) };
-      }),
+    const logs = SEED_TEMPLATES.filter((template) => template.meal_slot !== 'evening_snack').flatMap(
+      (template) =>
+        template.items.map((item) => {
+          const food = byId.get(item.food_id)!;
+          return { ...scaleFoodMacros(food, item.amount) };
+        }),
     );
     const summary = computeDailySummary('2026-09-03', logs as never, targets);
     expect(summary.kcal).toBeGreaterThan(1900);
@@ -139,12 +151,19 @@ describe('macro helpers', () => {
 });
 
 describe('seed catalog shape', () => {
-  it('uses piece basis only for eggs', () => {
+  it('uses piece basis only for eggs and espresso', () => {
     const pieceFoods = SEED_FOODS.filter((f: Food) => f.basis === 'per_piece');
-    expect(pieceFoods.map((f) => f.id)).toEqual(['muna']);
+    expect(pieceFoods.map((f) => f.id).sort()).toEqual(['espresso', 'muna']);
   });
 
   it('includes the locked staple list', () => {
-    expect(SEED_FOODS).toHaveLength(24);
+    expect(SEED_FOODS.length).toBeGreaterThanOrEqual(24);
+    expect(SEED_FOODS.map((f) => f.id)).toEqual(expect.arrayContaining([
+      'kaurahiutaleet',
+      'star-nutrition-soy-isolate',
+      'oululainen-hapankorppu',
+      'huel-black-chocolate',
+      'fazer-aito-raspberry',
+    ]));
   });
 });

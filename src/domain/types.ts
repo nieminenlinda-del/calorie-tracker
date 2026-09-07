@@ -1,8 +1,8 @@
 export type ServingUnit = 'g' | 'piece' | 'ml';
 export type MacroBasis = 'per_100g' | 'per_piece' | 'per_ml';
-export type MealSlot = 'breakfast' | 'lunch' | 'dinner' | 'snack';
+export type MealSlot = 'breakfast' | 'lunch' | 'snack' | 'dinner' | 'evening_snack';
 
-export const MEAL_SLOTS: MealSlot[] = ['breakfast', 'lunch', 'dinner', 'snack'];
+export const MEAL_SLOTS: MealSlot[] = ['breakfast', 'lunch', 'snack', 'dinner', 'evening_snack'];
 
 export type DietFlag =
   | 'dairy_free'

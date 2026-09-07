@@ -58,6 +58,18 @@ export function macrosFromCustom(input: {
   };
 }
 
+/** Convert macros for a gram amount into the catalog's per-100 g basis. */
+export function macrosPer100g(amountG: number, macros: Macros): Macros {
+  const grams = amountG > 0 ? amountG : 100;
+  const factor = 100 / grams;
+  return {
+    kcal: roundKcal(macros.kcal * factor),
+    protein: roundMacro(macros.protein * factor),
+    carbs: roundMacro(macros.carbs * factor),
+    fat: roundMacro(macros.fat * factor),
+  };
+}
+
 export function formatKcal(value: number): string {
   return String(Math.round(value));
 }

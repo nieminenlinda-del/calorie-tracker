@@ -1,11 +1,11 @@
 import { getDb } from '../db/database';
-import type { MealTemplate } from '../domain/types';
+import type { MealTemplate, MealSlot } from '../domain/types';
 
 export const templatesRepo = {
   async getAll(): Promise<MealTemplate[]> {
     const db = await getDb();
     const templates = await db.getAll('meal_templates');
-    const slotOrder = ['breakfast', 'lunch', 'snack', 'dinner'];
+    const slotOrder: MealSlot[] = ['breakfast', 'lunch', 'snack', 'dinner', 'evening_snack'];
     return templates.sort((a, b) => {
       const slot = slotOrder.indexOf(a.meal_slot) - slotOrder.indexOf(b.meal_slot);
       if (slot !== 0) return slot;

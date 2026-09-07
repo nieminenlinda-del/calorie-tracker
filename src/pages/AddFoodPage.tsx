@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AmountStepper } from '../components/AmountStepper';
 import { searchFoods } from '../domain/diet';
 import { previousDay } from '../domain/dates';
-import { applyTemplate, copyLogsToDate, logCatalogFood, logCustomFood } from '../domain/logging';
+import { applyTemplate, copyLogsToDate, logCatalogFood, logQuickAddFood, isQuickFood } from '../domain/logging';
 import {
   macrosFromCustom,
   scaleFoodMacros,
@@ -13,7 +13,7 @@ import {
 } from '../domain/macros';
 import type { MealSlot } from '../domain/types';
 import { mealSlotLabel, useLanguage } from '../i18n';
-import { foodLabel } from '../lib/labels';
+import { foodDisplayName, foodLabel } from '../lib/labels';
 import { logsRepo } from '../repos';
 import { useTracker } from '../state/TrackerContext';
 import { useToast } from '../state/ToastContext';
@@ -46,6 +46,18 @@ export function AddFoodPage() {
     }
     return visibleFoods.filter((food) => ids.includes(food.id)).slice(0, 6);
   }, [logs, visibleFoods]);
+  const myFoods = useMemo(
+    () => visibleFoods.filter((food) => isQuickFood(food)),
+    [visibleFoods],
+  );
+  const myFoodsNotRecent = useMemo(
+    () => myFoods.filter((food) => !recent.some((item) => item.id === food.id)),
+    [myFoods, recent],
+  );
+  const stapleFoods = useMemo(
+    () => filtered.filter((food) => !isQuickFood(food)),
+    [filtered],
+  );
 
   const preview = selected ? scaleFoodMacros(selected, amount) : null;
   const slotTemplates = templates.filter((template) => template.meal_slot === slot);
@@ -80,11 +92,15 @@ export function AddFoodPage() {
       {tab === 'catalog' ? (
         selected ? (
           <div className="template-card">
-            <h2 className="h1">{selected.name_fi}</h2>
+            <h2 className="h1">{foodDisplayName(selected)}</h2>
             <p className="lede">
-              {selected.name_en}
+              {selected.name_fi !== foodDisplayName(selected) ? `${selected.name_fi}` : selected.name_en}
               {selected.brand ? ` · ${selected.brand}` : ''} · {selected.kcal} kcal /{' '}
-              {selected.basis === 'per_piece' ? t('add.perPiece') : t('add.per100g')}
+              {selected.basis === 'per_piece'
+                ? t('add.perPiece')
+                : selected.basis === 'per_ml'
+                  ? t('add.per100ml')
+                  : t('add.per100g')}
             </p>
             <AmountStepper value={amount} unit={selected.serving_unit} onChange={setAmount} />
             {preview ? (
@@ -117,7 +133,7 @@ export function AddFoodPage() {
                 onClick={async () => {
                   await logCatalogFood({ date, meal_slot: slot, food: selected, amount });
                   await refresh();
-                  toast(t('toast.foodAdded', { name: selected.name_fi }));
+                  toast(t('toast.foodAdded', { name: foodDisplayName(selected) }));
                   navigate('/');
                 }}
               >
@@ -148,8 +164,23 @@ export function AddFoodPage() {
                 ))}
               </>
             ) : null}
-            <div className="section-label">{t('add.staples')}</div>
-            {filtered.map((food) => (
+            {query === '' && myFoodsNotRecent.length > 0 ? (
+              <>
+                <div className="section-label">{t('add.myFoods')}</div>
+                {myFoodsNotRecent.map((food) => (
+                  <FoodButton
+                    key={`mine-${food.id}`}
+                    food={food}
+                    onPick={() => {
+                      setSelectedId(food.id);
+                      setAmount(food.default_serving);
+                    }}
+                  />
+                ))}
+              </>
+            ) : null}
+            <div className="section-label">{query === '' ? t('add.staples') : t('add.tabCatalog')}</div>
+            {(query === '' ? stapleFoods : filtered).map((food) => (
               <FoodButton
                 key={food.id}
                 food={food}
@@ -166,16 +197,15 @@ export function AddFoodPage() {
       {tab === 'quick' ? (
         <QuickAddForm
           onSubmit={async (values) => {
-            await logCustomFood({
+            const { food } = await logQuickAddFood({
               date,
               meal_slot: slot,
               name: values.name,
               amount: values.amount,
-              unit: 'g',
               ...macrosFromCustom(values),
             });
             await refresh();
-            toast(t('toast.quickAddSaved'));
+            toast(t('toast.quickAddSaved', { name: food.name_en ?? food.name_fi }));
             navigate('/');
           }}
         />
@@ -242,10 +272,10 @@ function FoodButton({ food, onPick }: { food: Food; onPick: () => void }) {
   return (
     <button type="button" className="food-row" onClick={onPick}>
       <div>
-        <div className="name">{food.name_fi}</div>
+        <div className="name">{foodDisplayName(food)}</div>
         <div className="sub">
           {foodLabel(food)} · {food.kcal} kcal /{' '}
-          {food.basis === 'per_piece' ? t('add.perPiece') : t('add.per100g')} ·{' '}
+          {food.basis === 'per_piece' ? t('add.perPiece') : food.basis === 'per_ml' ? t('add.per100ml') : t('add.per100g')} ·{' '}
           {t('add.defaultAmount', {
             amount: food.default_serving,
             unit: unitLabel(food.serving_unit),
@@ -285,6 +315,7 @@ function QuickAddForm({
         void onSubmit({ name, amount, kcal, protein, carbs, fat });
       }}
     >
+      <p className="lede">{t('add.quickHint')}</p>
       <label className="field">
         <span>{t('meal.name')}</span>
         <input value={name} onChange={(event) => setName(event.target.value)} required />

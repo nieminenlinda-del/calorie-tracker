@@ -1,4 +1,4 @@
-import { scaleFoodMacros } from '../domain/macros';
+import { macrosFromCustom, macrosPer100g, scaleFoodMacros } from '../domain/macros';
 import type { Food, FoodLog, MealSlot, MealTemplate } from '../domain/types';
 import { logsRepo } from '../repos/logsRepo';
 import { foodsRepo } from '../repos/foodsRepo';
@@ -59,6 +59,66 @@ export async function logCustomFood(input: {
   };
   await logsRepo.put(log);
   return log;
+}
+
+export const QUICK_FOOD_TAG = 'quick';
+
+export function isQuickFood(food: Food): boolean {
+  return food.tags.includes(QUICK_FOOD_TAG);
+}
+
+function sameFoodName(a: string, b: string): boolean {
+  return a.trim().toLocaleLowerCase('fi-FI') === b.trim().toLocaleLowerCase('fi-FI');
+}
+
+/**
+ * Log a Quick Add entry and persist it to the foods library so it can be
+ * reused from Recents / My foods without retyping macros.
+ */
+export async function logQuickAddFood(input: {
+  date: string;
+  meal_slot: MealSlot;
+  name: string;
+  amount: number;
+  kcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}): Promise<{ food: Food; log: FoodLog }> {
+  const name = input.name.trim();
+  const amount = input.amount > 0 ? input.amount : 100;
+  const entered = macrosFromCustom(input);
+  const per100 = macrosPer100g(amount, entered);
+
+  const existing = (await foodsRepo.getAll()).find(
+    (food) => isQuickFood(food) && sameFoodName(food.name_fi, name),
+  );
+
+  const food: Food = {
+    id: existing?.id ?? `quick-${newId()}`,
+    name_fi: name,
+    name_en: name,
+    serving_unit: 'g',
+    default_serving: amount,
+    ...per100,
+    basis: 'per_100g',
+    tags: [QUICK_FOOD_TAG],
+    excluded_by_flags: [],
+  };
+  await foodsRepo.put(food);
+
+  const log: FoodLog = {
+    id: newId(),
+    date: input.date,
+    meal_slot: input.meal_slot,
+    food_id: food.id,
+    amount,
+    unit: 'g',
+    ...entered,
+    created_at: nowIso(),
+  };
+  await logsRepo.put(log);
+  return { food, log };
 }
 
 export async function updateLogAmount(

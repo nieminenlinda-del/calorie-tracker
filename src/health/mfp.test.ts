@@ -39,6 +39,9 @@ describe('MyFitnessPal nutrition.csv', () => {
     expect(mapMfpMeal('LUNCH')).toBe('lunch');
     expect(mapMfpMeal('Dinner')).toBe('dinner');
     expect(mapMfpMeal('Snacks')).toBe('snack');
+    expect(mapMfpMeal('Snack 1')).toBe('snack');
+    expect(mapMfpMeal('Snack 2')).toBe('evening_snack');
+    expect(mapMfpMeal('Evening Snack')).toBe('evening_snack');
     expect(mapMfpMeal('Walk')).toBeNull();
   });
 

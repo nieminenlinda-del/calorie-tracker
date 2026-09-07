@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { sumMacros, formatKcal, formatGrams } from '../domain/macros';
 import type { Food, FoodLog, MealSlot } from '../domain/types';
 import { mealSlotLabel, useLanguage } from '../i18n';
-import { amountLabel, logLabel } from '../lib/labels';
+import { amountLabel, foodDisplayName, logLabel } from '../lib/labels';
 import { logsRepo } from '../repos';
 import { saveMealAsTemplate, updateLogAmount } from '../domain/logging';
 import { AmountStepper } from './AmountStepper';
@@ -159,7 +159,7 @@ function EditLogSheet({
   const { t } = useLanguage();
   const [amount, setAmount] = useState(log.amount);
   return (
-    <Sheet title={log.custom_name ?? food?.name_fi ?? t('meal.entry')} onClose={onClose}>
+    <Sheet title={log.custom_name ?? (food ? foodDisplayName(food) : t('meal.entry'))} onClose={onClose}>
       <AmountStepper value={amount} unit={log.unit} onChange={setAmount} />
       <div className="row-btns" style={{ marginTop: 16 }}>
         <button type="button" className="danger" onClick={() => void onDelete()}>

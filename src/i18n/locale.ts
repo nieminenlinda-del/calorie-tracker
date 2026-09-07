@@ -93,8 +93,9 @@ export function tcount(
 const MEAL_KEYS: Record<MealSlot, MessageKey> = {
   breakfast: 'meal.breakfast',
   lunch: 'meal.lunch',
-  dinner: 'meal.dinner',
   snack: 'meal.snack',
+  dinner: 'meal.dinner',
+  evening_snack: 'meal.evening_snack',
 };
 
 export function mealSlotLabel(slot: MealSlot, locale?: Locale): string {
