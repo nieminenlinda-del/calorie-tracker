@@ -100,6 +100,20 @@ describe('locale', () => {
     expect(formatHelsinkiDate('2026-09-01').toLowerCase()).toContain('tis');
   });
 
+  it('keeps scan permission copy distinct from a generic camera failure', () => {
+    initLocale('en');
+    expect(t('scan.permission')).toMatch(/permission/i);
+    expect(t('scan.permission')).toMatch(/Quick Add/i);
+    expect(t('scan.cameraError')).toMatch(/Could not start the camera/i);
+    expect(t('scan.cameraError')).toMatch(/Quick Add/i);
+    expect(t('scan.enterCode')).toMatch(/barcode/i);
+    expect(t('scan.permission')).not.toBe(t('scan.cameraError'));
+    setLocale('sv');
+    expect(t('scan.permission')).toMatch(/tillstånd/i);
+    expect(t('scan.cameraError')).toMatch(/gick inte att starta/i);
+    expect(t('scan.quickAddInstead')).toMatch(/Snabb/i);
+  });
+
   it('uses a localized unknown-food fallback', () => {
     expect(logLabel({ food_id: 'missing' } as never, [])).toBe('Unknown');
     setLocale('sv');

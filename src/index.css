@@ -795,6 +795,10 @@ a {
   object-fit: cover;
 }
 
+.scanner-html5 {
+  min-height: 220px;
+}
+
 .scanner-reticle {
   position: absolute;
   left: 50%;

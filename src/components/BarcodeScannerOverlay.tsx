@@ -10,8 +10,6 @@ import {
 import { normalizeBarcode } from '../barcode/normalize';
 import { useLanguage } from '../i18n';
 
-const HTML5_READER_ID = 'barcode-html5-reader';
-
 export function BarcodeScannerOverlay({
   onDetected,
   onClose,
@@ -25,6 +23,7 @@ export function BarcodeScannerOverlay({
   const videoRef = useRef<HTMLVideoElement>(null);
   const onDetectedRef = useRef(onDetected);
   onDetectedRef.current = onDetected;
+  const html5Id = `barcode-html5-reader-${useId().replace(/:/g, '')}`;
   const [engine, setEngine] = useState<'native' | 'html5' | null>(null);
   const [cameraError, setCameraError] = useState<CameraErrorKind | null>(null);
   const [typed, setTyped] = useState('');
@@ -32,7 +31,18 @@ export function BarcodeScannerOverlay({
 
   useEffect(() => {
     let cancelled = false;
-    let stop: (() => Promise<void>) | undefined;
+    void nativeBarcodeSupported().then((useNative) => {
+      if (!cancelled) setEngine(useNative ? 'native' : 'html5');
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!engine) return;
+    let cancelled = false;
+    const stopRef = { current: undefined as undefined | (() => Promise<void>) };
     const reported = { current: false };
 
     const emit = (barcode: string) => {
@@ -42,29 +52,25 @@ export function BarcodeScannerOverlay({
     };
 
     (async () => {
-      const useNative = await nativeBarcodeSupported();
-      if (cancelled) return;
-      setEngine(useNative ? 'native' : 'html5');
-      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-      if (cancelled) return;
       try {
-        if (useNative && videoRef.current) {
-          stop = await startNativeScanner(videoRef.current, emit);
+        if (engine === 'native') {
+          const video = videoRef.current;
+          if (!video) throw new Error('Scanner container is missing');
+          stopRef.current = await startNativeScanner(video, emit);
         } else {
-          stop = await startHtml5Scanner(HTML5_READER_ID, emit);
+          stopRef.current = await startHtml5Scanner(html5Id, emit);
         }
+        if (cancelled) await stopRef.current?.();
       } catch (err) {
         if (!cancelled) setCameraError(classifyCameraError(err));
-        return;
       }
-      if (cancelled) await stop?.();
     })();
 
     return () => {
       cancelled = true;
-      void stop?.();
+      void stopRef.current?.();
     };
-  }, []);
+  }, [engine, html5Id]);
 
   function submitTyped(event: FormEvent) {
     event.preventDefault();
@@ -95,15 +101,21 @@ export function BarcodeScannerOverlay({
       </header>
       <p className="scanner-prompt">{t('scan.prompt')}</p>
       {errorCopy ? <p className="scanner-error">{errorCopy}</p> : null}
-      <div className="scanner-stage" hidden={engine === 'html5' || Boolean(cameraError)}>
-        <video ref={videoRef} className="scanner-video" playsInline muted autoPlay />
-        <div className="scanner-reticle" aria-hidden />
+      <div className="scanner-stage" hidden={Boolean(cameraError)}>
+        {engine === 'native' ? (
+          <>
+            <video
+              ref={videoRef}
+              className="scanner-video"
+              playsInline
+              muted
+              autoPlay
+            />
+            <div className="scanner-reticle" aria-hidden />
+          </>
+        ) : null}
+        {engine === 'html5' ? <div id={html5Id} className="scanner-html5" /> : null}
       </div>
-      <div
-        id={HTML5_READER_ID}
-        className="scanner-stage scanner-html5"
-        hidden={engine !== 'html5' || Boolean(cameraError)}
-      />
       <form className="scanner-type" onSubmit={submitTyped}>
         <label className="field" htmlFor={typedId}>
           <span>{t('scan.enterCode')}</span>
