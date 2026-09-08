@@ -13,7 +13,10 @@ async function pruneNonSeedCatalog(): Promise<void> {
   const seedIds = new Set(SEED_FOODS.map((food) => food.id));
   const existing = await foodsRepo.getAll();
   const stale = existing
-    .filter((food) => !seedIds.has(food.id) && !food.tags.includes(QUICK_FOOD_TAG))
+    .filter(
+      (food) =>
+        !seedIds.has(food.id) && !food.tags.includes(QUICK_FOOD_TAG) && !food.barcode,
+    )
     .map((food) => food.id);
   await foodsRepo.deleteMany(stale);
 }

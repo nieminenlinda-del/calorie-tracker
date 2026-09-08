@@ -4,7 +4,7 @@ Phone-first PWA for daily food logging. Separate from the workout-program track.
 
 **Live app:** [https://nieminenlinda-del.github.io/calorie-tracker/](https://nieminenlinda-del.github.io/calorie-tracker/)
 
-Phase 1 does **not** include barcode scanning, Open Food Facts, or social features.
+Phase 1 did **not** include social features. Barcode scanning (camera + Open Food Facts) is available from Add food.
 
 ## Install on iPhone
 
@@ -43,7 +43,7 @@ npm run preview
 2. Tap **+ Lisää** on a meal (aamiainen, lounas, päivällinen, välipala) and pick a staple in grams. Eggs are logged by piece (`kpl`).
 3. **Treenipäivä** drops in the seeded training-day templates (proteiinipuuro, linssi+munat, banaani+Härkis, kirjolohi+kuskus).
 4. **Tallenna ateria** keeps the current meal as a reusable template. **Kopioi eilinen** / per-meal copy fills from yesterday.
-5. **Pika** is a manual quick-add (name + kcal + P/C/F).
+5. **Pika** is a manual quick-add (name + kcal + P/C/F). **Scan barcode** on Add food uses the camera, looks up Open Food Facts, then confirms portion into the current meal. Misses and offline fall back to Pika.
 6. **Tavoitteet** edits the daily targets (defaults as above).
 7. **Apple Health**: Tänään / Tavoitteet can import `export.zip` / `export.xml`, **or** the iOS Shortcuts file `linda-health-shortcut.json` from iCloud Drive (see [docs/SHORTCUTS.md](docs/SHORTCUTS.md)). Today’s active kcal and a small date → kcal → treeni\|lepo history show up after import. Optional toggle adds +250 kcal on training days (Mon/Tue/Thu/Fri = A/B/C/D) without overwriting the saved 2050 target.
 

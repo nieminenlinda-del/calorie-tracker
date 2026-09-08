@@ -73,4 +73,28 @@ describe('bootstrapDb', () => {
     const db = await getDb();
     expect((await db.get('meta', 'seed_version'))?.value).toBe(SEED_VERSION);
   });
+
+  it('keeps scanned barcode foods that are not in the seed catalog', async () => {
+    const scanned: Food = {
+      id: 'off-3017620422003',
+      name_fi: 'Nutella',
+      name_en: 'Nutella',
+      barcode: '3017620422003',
+      serving_unit: 'g',
+      default_serving: 15,
+      kcal: 539,
+      protein: 6.3,
+      carbs: 57.5,
+      fat: 30.9,
+      basis: 'per_100g',
+      tags: [QUICK_FOOD_TAG, 'off'],
+      excluded_by_flags: [],
+    };
+    await foodsRepo.put(scanned);
+    await bootstrapDb();
+    expect(await foodsRepo.getByBarcode('3017620422003')).toMatchObject({
+      id: 'off-3017620422003',
+      name_en: 'Nutella',
+    });
+  });
 });

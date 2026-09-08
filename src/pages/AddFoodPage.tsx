@@ -1,9 +1,19 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { lookupBarcode } from '../barcode/lookup';
 import { AmountStepper } from '../components/AmountStepper';
+import { BarcodeScannerOverlay } from '../components/BarcodeScannerOverlay';
+import { ScanConfirmCard } from '../components/ScanConfirmCard';
 import { searchFoods } from '../domain/diet';
 import { previousDay } from '../domain/dates';
-import { applyTemplate, copyLogsToDate, logCatalogFood, logQuickAddFood, isQuickFood } from '../domain/logging';
+import {
+  applyTemplate,
+  copyLogsToDate,
+  isQuickFood,
+  logCatalogFood,
+  logQuickAddFood,
+  logScannedFood,
+} from '../domain/logging';
 import {
   macrosFromCustom,
   scaleFoodMacros,
@@ -20,6 +30,8 @@ import { useToast } from '../state/ToastContext';
 import type { Food } from '../domain/types';
 
 type Tab = 'catalog' | 'quick' | 'templates';
+type ScanMiss = { barcode: string; reason: 'not_found' | 'offline' | 'error' };
+type ScanHit = { food: Food; source: 'local' | 'off'; missingNutrition: boolean };
 
 export function AddFoodPage() {
   const { date: contextDate, visibleFoods, templates, logs, refresh } = useTracker();
@@ -33,6 +45,10 @@ export function AddFoodPage() {
   const [query, setQuery] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [amount, setAmount] = useState(50);
+  const [scanning, setScanning] = useState(false);
+  const [lookingUp, setLookingUp] = useState(false);
+  const [scanHit, setScanHit] = useState<ScanHit | null>(null);
+  const [scanMiss, setScanMiss] = useState<ScanMiss | null>(null);
 
   const selected = visibleFoods.find((food) => food.id === selectedId) ?? null;
   const filtered = useMemo(() => searchFoods(visibleFoods, query), [visibleFoods, query]);
@@ -62,6 +78,43 @@ export function AddFoodPage() {
   const preview = selected ? scaleFoodMacros(selected, amount) : null;
   const slotTemplates = templates.filter((template) => template.meal_slot === slot);
 
+  function clearScan() {
+    setScanHit(null);
+    setScanMiss(null);
+    setLookingUp(false);
+  }
+
+  function goQuickAdd() {
+    setScanning(false);
+    clearScan();
+    setSelectedId(null);
+    setTab('quick');
+  }
+
+  async function handleBarcode(raw: string) {
+    setScanning(false);
+    setScanHit(null);
+    setScanMiss(null);
+    setSelectedId(null);
+    setLookingUp(true);
+    try {
+      const result = await lookupBarcode(raw);
+      if (result.status === 'found') {
+        setScanHit({
+          food: result.food,
+          source: result.source,
+          missingNutrition: result.missingNutrition,
+        });
+      } else if (result.status === 'not_found') {
+        setScanMiss({ barcode: result.barcode, reason: 'not_found' });
+      } else {
+        setScanMiss({ barcode: result.barcode, reason: result.reason });
+      }
+    } finally {
+      setLookingUp(false);
+    }
+  }
+
   return (
     <div className="page page-add">
       <header className="topbar">
@@ -89,7 +142,57 @@ export function AddFoodPage() {
         </TabButton>
       </div>
 
-      {tab !== 'templates' && selected ? (
+      {lookingUp ? <p className="lede">{t('scan.lookingUp')}</p> : null}
+
+      {tab !== 'templates' && scanMiss ? (
+        <div className="template-card">
+          <p className="lede">
+            {scanMiss.reason === 'not_found'
+              ? t('scan.notFound', { barcode: scanMiss.barcode })
+              : scanMiss.reason === 'offline'
+                ? t('scan.offline')
+                : t('scan.error')}
+          </p>
+          <div className="row-btns">
+            <button
+              type="button"
+              className="ghost"
+              onClick={() => {
+                setScanMiss(null);
+                setScanning(true);
+              }}
+            >
+              {t('scan.tryAgain')}
+            </button>
+            <button type="button" className="primary" onClick={goQuickAdd}>
+              {t('scan.quickAddInstead')}
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {tab !== 'templates' && scanHit ? (
+        <ScanConfirmCard
+          food={scanHit.food}
+          source={scanHit.source}
+          missingNutrition={scanHit.missingNutrition}
+          onBack={() => clearScan()}
+          onQuickAdd={goQuickAdd}
+          onConfirm={async (values) => {
+            const { food } = await logScannedFood({
+              date,
+              meal_slot: slot,
+              draft: scanHit.food,
+              ...values,
+            });
+            await refresh();
+            toast(t('toast.foodAdded', { name: foodDisplayName(food) }));
+            navigate('/');
+          }}
+        />
+      ) : null}
+
+      {tab !== 'templates' && selected && !scanHit ? (
         <div className="template-card">
           <h2 className="h1">{foodDisplayName(selected)}</h2>
           <p className="lede">
@@ -142,8 +245,14 @@ export function AddFoodPage() {
         </div>
       ) : null}
 
-      {tab === 'catalog' && !selected ? (
+      {tab === 'catalog' && !selected && !scanHit ? (
           <div>
+            <ScanBarcodeButton
+              onClick={() => {
+                clearScan();
+                setScanning(true);
+              }}
+            />
             <input
               className="search"
               placeholder={t('add.searchPlaceholder')}
@@ -194,8 +303,14 @@ export function AddFoodPage() {
           </div>
       ) : null}
 
-      {tab === 'quick' && !selected ? (
+      {tab === 'quick' && !selected && !scanHit ? (
         <div>
+          <ScanBarcodeButton
+            onClick={() => {
+              clearScan();
+              setScanning(true);
+            }}
+          />
           {myFoods.length > 0 ? (
             <>
               <div className="section-label">{t('add.myFoods')}</div>
@@ -265,6 +380,14 @@ export function AddFoodPage() {
           />
         </div>
       ) : null}
+
+      {scanning ? (
+        <BarcodeScannerOverlay
+          onDetected={(code) => void handleBarcode(code)}
+          onClose={() => setScanning(false)}
+          onQuickAdd={goQuickAdd}
+        />
+      ) : null}
     </div>
   );
 }
@@ -281,6 +404,15 @@ function TabButton({
   return (
     <button type="button" className={active ? 'chip accent' : 'chip'} onClick={onClick}>
       {children}
+    </button>
+  );
+}
+
+function ScanBarcodeButton({ onClick }: { onClick: () => void }) {
+  const { t } = useLanguage();
+  return (
+    <button type="button" className="scan-btn" onClick={onClick}>
+      {t('scan.button')}
     </button>
   );
 }

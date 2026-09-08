@@ -62,9 +62,14 @@ export async function logCustomFood(input: {
 }
 
 export const QUICK_FOOD_TAG = 'quick';
+export const OFF_FOOD_TAG = 'off';
 
 export function isQuickFood(food: Food): boolean {
   return food.tags.includes(QUICK_FOOD_TAG);
+}
+
+function uniqueTags(tags: string[]): string[] {
+  return [...new Set(tags)];
 }
 
 function sameFoodName(a: string, b: string): boolean {
@@ -118,6 +123,66 @@ export async function logQuickAddFood(input: {
     created_at: nowIso(),
   };
   await logsRepo.put(log);
+  return { food, log };
+}
+
+/**
+ * Persist a scanned Open Food Facts product like Quick Add (My foods + barcode)
+ * and log the chosen portion into the current meal slot.
+ * Seed staples matched by barcode are logged as-is and not overwritten.
+ */
+export async function logScannedFood(input: {
+  date: string;
+  meal_slot: MealSlot;
+  draft: Food;
+  amount: number;
+  name: string;
+  kcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}): Promise<{ food: Food; log: FoodLog }> {
+  const existing = input.draft.barcode
+    ? ((await foodsRepo.getByBarcode(input.draft.barcode)) ??
+      (await foodsRepo.getById(input.draft.id)))
+    : await foodsRepo.getById(input.draft.id);
+
+  if (existing && !isQuickFood(existing)) {
+    const log = await logCatalogFood({
+      date: input.date,
+      meal_slot: input.meal_slot,
+      food: existing,
+      amount: input.amount > 0 ? input.amount : existing.default_serving,
+    });
+    return { food: existing, log };
+  }
+
+  const name = input.name.trim() || input.draft.name_en || input.draft.name_fi;
+  const amount = input.amount > 0 ? input.amount : input.draft.default_serving || 100;
+  const entered = macrosFromCustom(input);
+  const per100 =
+    input.draft.basis === 'per_piece' ? entered : macrosPer100g(amount, entered);
+
+  const food: Food = {
+    ...input.draft,
+    id: existing?.id ?? input.draft.id,
+    name_fi: name,
+    name_en: name,
+    barcode: input.draft.barcode ?? existing?.barcode,
+    serving_unit: input.draft.serving_unit === 'piece' ? 'piece' : 'g',
+    default_serving: amount,
+    ...per100,
+    basis: input.draft.basis === 'per_piece' ? 'per_piece' : 'per_100g',
+    tags: uniqueTags([...(existing?.tags ?? input.draft.tags), QUICK_FOOD_TAG]),
+    excluded_by_flags: existing?.excluded_by_flags ?? input.draft.excluded_by_flags ?? [],
+  };
+  await foodsRepo.put(food);
+  const log = await logCatalogFood({
+    date: input.date,
+    meal_slot: input.meal_slot,
+    food,
+    amount,
+  });
   return { food, log };
 }
 

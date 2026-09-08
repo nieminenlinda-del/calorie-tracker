@@ -58,12 +58,12 @@ Calendar days use `Europe/Helsinki` (`src/domain/dates.ts`). Logs key off `YYYY-
 
 `vite-plugin-pwa` injects a service worker (precache + SPA navigate fallback) and a standalone manifest. Installable on iOS/Android via Add to Home Screen.
 
-## Phase 2 extension points
+## Phase 2
 
-Barcode + Open Food Facts should land as:
+Barcode scanning and Open Food Facts lookup live on the add-food page:
 
-1. Optional `barcode` on `Food` (and a `by-barcode` index).
-2. A `FoodLookup` adapter next to repos — local catalog first, OFF second — returning the same `Food` shape.
-3. Camera UI on the add-food page only. Log rows stay snapshots so offline totals never depend on OFF.
+1. Optional `barcode` on `Food` with a `by-barcode` IndexedDB index.
+2. `src/barcode/` looks up the local catalog first, then Open Food Facts, and maps hits to the same `Food` shape.
+3. Camera UI uses native `BarcodeDetector` when the browser has it, otherwise `html5-qrcode`. Log rows stay snapshots so offline totals never depend on OFF.
 
-Do not couple logs to live remote nutrition data.
+Unknown barcodes, permission problems, and network failures fall through to Quick Add. New products are saved like Quick Add (`quick` tag + barcode) so they survive bootstrap and show up in My foods.

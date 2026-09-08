@@ -1,0 +1,23 @@
+{
+  "code": "6408430000000",
+  "status": 1,
+  "status_verbose": "product found",
+  "product": {
+    "code": "6408430000000",
+    "brands": "Rainbow",
+    "generic_name": "Tuna in water",
+    "product_name": "Rainbow tuna in water",
+    "product_name_en": "Rainbow tuna in water",
+    "product_name_fi": "Rainbow tonnikala vedessä",
+    "product_name_sv": "Rainbow tonfisk i vatten",
+    "nutrition_data_per": "100g",
+    "serving_quantity": 80,
+    "quantity": "200 g",
+    "nutriments": {
+      "carbohydrates_100g": 0,
+      "energy-kcal_100g": 103,
+      "fat_100g": 0.9,
+      "proteins_100g": 25
+    }
+  }
+}

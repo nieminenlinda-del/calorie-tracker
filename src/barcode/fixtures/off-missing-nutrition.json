@@ -1,0 +1,12 @@
+{
+  "code": "5000000000000",
+  "status": 1,
+  "status_verbose": "product found",
+  "product": {
+    "code": "5000000000000",
+    "product_name": "",
+    "brands": "Mystery Co",
+    "nutrition_data_per": "100g",
+    "nutriments": {}
+  }
+}

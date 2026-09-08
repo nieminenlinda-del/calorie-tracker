@@ -1,3 +1,4 @@
+import { barcodeCandidates } from '../barcode/normalize';
 import { getDb } from '../db/database';
 import type { Food } from '../domain/types';
 
@@ -23,6 +24,17 @@ export const foodsRepo = {
   async getById(id: string): Promise<Food | undefined> {
     const db = await getDb();
     return db.get('foods', id);
+  },
+
+  async getByBarcode(barcode: string): Promise<Food | undefined> {
+    const db = await getDb();
+    for (const code of barcodeCandidates(barcode)) {
+      const indexed = await db.getFromIndex('foods', 'by-barcode', code);
+      if (indexed) return indexed;
+      const byOffId = await db.get('foods', `off-${code}`);
+      if (byOffId) return byOffId;
+    }
+    return undefined;
   },
 
   async put(food: Food): Promise<void> {

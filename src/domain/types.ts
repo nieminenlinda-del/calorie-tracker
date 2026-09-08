@@ -46,6 +46,8 @@ export interface Food {
   name_en?: string;
   brand?: string;
   aliases?: string[];
+  /** EAN/UPC digits when known (scanned Open Food Facts products, later staples). */
+  barcode?: string;
   serving_unit: ServingUnit;
   default_serving: number;
   kcal: number;

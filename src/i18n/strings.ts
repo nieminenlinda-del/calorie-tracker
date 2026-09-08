@@ -81,6 +81,32 @@ const sv = {
   'add.rowsOther': '{count} rader',
   'add.copyYesterdayMeal': 'Kopiera gårdagens {meal}',
 
+  'scan.button': 'Skanna streckkod',
+  'scan.title': 'Skanna streckkod',
+  'scan.prompt':
+    'Rikta kameran mot en streckkod. Ravinto använder kameran bara för att läsa koden — inget sparas förrän du lägger till maten.',
+  'scan.cameraHint': 'Använder bakre kameran. Stäng den här rutan för att stänga av den.',
+  'scan.close': 'Stäng skannern',
+  'scan.lookingUp': 'Söker produkten…',
+  'scan.notFound': 'Ingen produkt för {barcode}. Lägg till den med Snabb i stället.',
+  'scan.offline':
+    'Kunde inte nå Open Food Facts. Kolla nätet, eller lägg till maten med Snabb.',
+  'scan.error': 'Sökningen misslyckades. Du kan fortfarande lägga till maten med Snabb.',
+  'scan.permission':
+    'Kameran behöver tillstånd för att skanna. Tillåt den i webbläsaren, eller lägg till maten med Snabb.',
+  'scan.noCamera': 'Ingen kamera hittades. Skriv en streckkod eller använd Snabb.',
+  'scan.cameraError': 'Kameran gick inte att starta. Skriv en streckkod eller använd Snabb.',
+  'scan.quickAddInstead': 'Snabb i stället',
+  'scan.enterCode': 'Eller skriv streckkoden',
+  'scan.lookup': 'Sök',
+  'scan.confirmHint': 'Kontrollera namn, mängd och makron, och lägg sedan till i den här måltiden.',
+  'scan.missingNutrition':
+    'Produkten saknar näringsdata. Fyll i kcal och makron, eller använd Snabb.',
+  'scan.sourceOff': 'Open Food Facts',
+  'scan.sourceLocal': 'Dina livsmedel',
+  'scan.per100gHint': 'Makron gäller den här mängden. Sparas per 100 g som Snabb.',
+  'scan.tryAgain': 'Skanna igen',
+
   'templates.title': 'Måltidsmallar',
   'templates.lede':
     'Spara en återkommande måltid och lägg till den med ett tryck. Träningsdagens mallar finns färdiga.',
@@ -250,6 +276,32 @@ const en: Record<MessageKey, string> = {
   'add.rowsOne': '{count} row',
   'add.rowsOther': '{count} rows',
   'add.copyYesterdayMeal': "Copy yesterday's {meal}",
+
+  'scan.button': 'Scan barcode',
+  'scan.title': 'Scan barcode',
+  'scan.prompt':
+    'Point the camera at a barcode. Ravinto uses the camera only to read the code — nothing is stored until you add the food.',
+  'scan.cameraHint': 'Uses the rear camera. Close this screen to turn it off.',
+  'scan.close': 'Close scanner',
+  'scan.lookingUp': 'Looking up product…',
+  'scan.notFound': 'No product found for {barcode}. Add it with Quick Add instead.',
+  'scan.offline':
+    'Could not reach Open Food Facts. Check the connection, or add the food with Quick Add.',
+  'scan.error': 'Barcode lookup failed. You can still add the food with Quick Add.',
+  'scan.permission':
+    'Camera permission is needed to scan. You can allow it in the browser, or add the food with Quick Add.',
+  'scan.noCamera': 'No camera found. Type a barcode or use Quick Add.',
+  'scan.cameraError': 'Could not start the camera. Type a barcode or use Quick Add.',
+  'scan.quickAddInstead': 'Quick Add instead',
+  'scan.enterCode': 'Or type a barcode',
+  'scan.lookup': 'Look up',
+  'scan.confirmHint': 'Check the name, amount and macros, then add to this meal.',
+  'scan.missingNutrition':
+    'This product has no nutrition data. Enter kcal and macros, or Quick Add.',
+  'scan.sourceOff': 'Open Food Facts',
+  'scan.sourceLocal': 'Your foods',
+  'scan.per100gHint': 'Macros below are for this amount. Saved per 100 g like Quick Add.',
+  'scan.tryAgain': 'Scan again',
 
   'templates.title': 'Meal templates',
   'templates.lede':

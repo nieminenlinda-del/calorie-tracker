@@ -57,7 +57,14 @@ export function searchFoods(foods: Food[], query: string): Food[] {
   const q = query.trim().toLocaleLowerCase('fi-FI');
   if (!q) return foods;
   return foods.filter((food) => {
-    const hay = [food.name_fi, food.name_en, food.brand, ...(food.aliases ?? []), ...food.tags]
+    const hay = [
+      food.name_fi,
+      food.name_en,
+      food.brand,
+      food.barcode,
+      ...(food.aliases ?? []),
+      ...food.tags,
+    ]
       .filter(Boolean)
       .join(' ')
       .toLocaleLowerCase('fi-FI');

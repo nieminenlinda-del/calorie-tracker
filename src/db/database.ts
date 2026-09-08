@@ -2,7 +2,7 @@ import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
 import type { Food, FoodLog, MealSlot, MealTemplate, UserTargets } from '../domain/types';
 
 export const DB_NAME = 'ravinto';
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 
 export interface MetaRecord {
   key: string;
@@ -13,7 +13,7 @@ interface RavintoSchema extends DBSchema {
   foods: {
     key: string;
     value: Food;
-    indexes: { 'by-name': string };
+    indexes: { 'by-name': string; 'by-barcode': string };
   };
   food_logs: {
     key: string;
@@ -41,7 +41,7 @@ let dbPromise: Promise<RavintoDB> | null = null;
 export function getDb(): Promise<RavintoDB> {
   if (!dbPromise) {
     dbPromise = openDB<RavintoSchema>(DB_NAME, DB_VERSION, {
-      upgrade(db) {
+      upgrade(db, oldVersion, _newVersion, transaction) {
         if (!db.objectStoreNames.contains('foods')) {
           const foods = db.createObjectStore('foods', { keyPath: 'id' });
           foods.createIndex('by-name', 'name_fi');
@@ -59,6 +59,12 @@ export function getDb(): Promise<RavintoDB> {
         }
         if (!db.objectStoreNames.contains('meta')) {
           db.createObjectStore('meta', { keyPath: 'key' });
+        }
+        if (oldVersion < 2) {
+          const foods = transaction.objectStore('foods');
+          if (!foods.indexNames.contains('by-barcode')) {
+            foods.createIndex('by-barcode', 'barcode');
+          }
         }
       },
     });
