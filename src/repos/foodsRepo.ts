@@ -61,4 +61,9 @@ export const foodsRepo = {
     await Promise.all(ids.map((id) => tx.store.delete(id)));
     await tx.done;
   },
+
+  async clear(): Promise<void> {
+    const db = await getDb();
+    await db.clear('foods');
+  },
 };

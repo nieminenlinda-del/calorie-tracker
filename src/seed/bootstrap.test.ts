@@ -2,10 +2,11 @@ import { afterEach, describe, expect, it } from 'vitest';
 import 'fake-indexeddb/auto';
 import { getDb, resetDbConnection } from '../db/database';
 import { QUICK_FOOD_TAG } from '../domain/logging';
-import type { Food } from '../domain/types';
+import type { Food, FoodLog } from '../domain/types';
 import { foodsRepo } from '../repos/foodsRepo';
+import { logsRepo } from '../repos/logsRepo';
 import { templatesRepo } from '../repos/templatesRepo';
-import { bootstrapDb, SEED_VERSION } from './bootstrap';
+import { bootstrapDb, pruneNonSeedCatalog, SEED_VERSION } from './bootstrap';
 import { SEED_FOODS } from './foods';
 
 async function deleteRavinto(): Promise<void> {
@@ -96,5 +97,46 @@ describe('bootstrapDb', () => {
       id: 'off-3017620422003',
       name_en: 'Nutella',
     });
+  });
+
+  it('pruneNonSeedCatalog never deletes from food_logs', async () => {
+    const leftover: Food = {
+      id: 'invented-mfp-guess',
+      name_fi: 'Arvattu mfp-ruoka',
+      name_en: 'Invented MFP guess',
+      serving_unit: 'g',
+      default_serving: 50,
+      kcal: 200,
+      protein: 10,
+      carbs: 20,
+      fat: 8,
+      basis: 'per_100g',
+      tags: ['staple'],
+      excluded_by_flags: [],
+    };
+    const log: FoodLog = {
+      id: 'keep-me-through-prune',
+      date: '2026-09-08',
+      meal_slot: 'breakfast',
+      food_id: leftover.id,
+      amount: 50,
+      unit: 'g',
+      kcal: 100,
+      protein: 5,
+      carbs: 10,
+      fat: 4,
+      created_at: '2026-09-08T06:00:00.000Z',
+    };
+    await foodsRepo.put(leftover);
+    await logsRepo.put(log);
+
+    await pruneNonSeedCatalog();
+    expect(await foodsRepo.getById(leftover.id)).toBeUndefined();
+    expect(await logsRepo.getAll()).toEqual([log]);
+
+    await bootstrapDb();
+    expect(await logsRepo.getAll()).toEqual([log]);
+    expect(await logsRepo.count()).toBe(1);
+    expect(await logsRepo.countByDate('2026-09-08')).toBe(1);
   });
 });

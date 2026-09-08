@@ -638,6 +638,25 @@ a {
   font-size: 13px;
 }
 
+.notice {
+  background: var(--paper-2);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--ink);
+  margin: 14px 0 0;
+}
+
+.debug-meta {
+  margin: 10px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
 .health-card {
   background: var(--card);
   border-radius: 22px;

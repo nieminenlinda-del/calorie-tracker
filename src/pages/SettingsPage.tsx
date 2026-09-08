@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ActiveEnergyCard } from '../components/ActiveEnergyCard';
+import { MealBackupCard } from '../components/MealBackupCard';
 import { DEFAULT_DIET_FLAGS, DEFAULT_TARGETS, type DietFlag } from '../domain/types';
 import { LOCALES, flagLabel, useLanguage } from '../i18n';
 import { targetsRepo } from '../repos';
@@ -127,6 +128,12 @@ export function SettingsPage() {
           {t('settings.restoreDefaults')}
         </button>
       </div>
+
+      <h2 className="h1" style={{ fontSize: 20, marginTop: 28 }}>
+        {t('settings.backup')}
+      </h2>
+      <p className="lede">{t('settings.backupLede')}</p>
+      <MealBackupCard />
 
       <h2 className="h1" style={{ fontSize: 20, marginTop: 28 }}>
         {t('settings.imports')}

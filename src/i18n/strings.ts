@@ -40,6 +40,9 @@ const sv = {
   'toast.deleted': 'Borttagen',
   'toast.savedAsTemplate': 'Måltiden sparades som mall',
   'toast.templateNeedsCatalog': 'Bara livsmedel från katalogen kan sparas som mall',
+  'toast.backupExported': 'Säkerhetskopian sparades',
+  'toast.backupImported': 'Måltidsdata importerad: {logs} loggar · {foods} livsmedel',
+  'toast.backupReplaced': 'Måltidsdata ersatt: {logs} loggar · {foods} livsmedel',
 
   'meal.breakfast': 'Frukost',
   'meal.lunch': 'Lunch',
@@ -128,6 +131,19 @@ const sv = {
   'settings.language': 'Språk',
   'settings.languageSv': 'Svenska',
   'settings.languageEn': 'English',
+  'settings.backup': 'Måltidsdata',
+  'settings.backupLede':
+    'Exportera en JSON-fil med dina måltider, Mina livsmedel, mål och mallar. Import återställer dem på den här telefonen.',
+  'settings.exportBackup': 'Exportera JSON',
+  'settings.importMerge': 'Importera JSON (slå ihop)',
+  'settings.importReplace': 'Ersätt allt från fil…',
+  'settings.importReplaceConfirm':
+    'Detta raderar nuvarande rader i varje tabell som finns i filen (måltider, livsmedel, mål, mallar) och skriver filens innehåll. Tabeller som saknas i filen lämnas. Det går inte att ångra. Fortsätta?',
+  'settings.backupSafariTip':
+    'När du uppdaterar hemskärmsappen eller gör en hård uppdatering: använd inte Safaris ”Rensa webbplatsdata” — då raderas matloggarna. Exportera en säkerhetskopia först.',
+  'settings.backupDebug': '{dateCount} loggar {date} · {total} loggar totalt',
+  'settings.backupDebugHint':
+    'Om den här dagen är tom men totalt inte är 0, kolla datumet på Idag — loggarna har inte raderats.',
 
   'flag.dairy_free': 'Mjölkfri',
   'flag.no_bread': 'Inget mjukt bröd',
@@ -196,6 +212,10 @@ const sv = {
   'error.notObject': '{label} saknas eller är inte ett objekt',
   'error.zipMissingExportXml': 'export.xml saknas i zip-filen',
   'error.notHealthExport': 'Filen är inte en Health-export (xml eller zip)',
+  'error.notRavintoBackup': 'Filen är inte en Ravinto-måltidskopia (schema: ravinto-backup)',
+  'error.unknownBackupVersion': 'Okänd schema_version för säkerhetskopian (förväntad 1)',
+  'error.backupMissingArray': 'Säkerhetskopian {label} måste vara en lista',
+  'error.backupMissingId': 'Säkerhetskopian {label} saknar id',
 } as const;
 
 export type MessageKey = keyof typeof sv;
@@ -236,6 +256,9 @@ const en: Record<MessageKey, string> = {
   'toast.deleted': 'Deleted',
   'toast.savedAsTemplate': 'Meal saved as template',
   'toast.templateNeedsCatalog': 'Only catalog foods can be saved as a template',
+  'toast.backupExported': 'Backup saved',
+  'toast.backupImported': 'Meal data imported: {logs} logs · {foods} foods',
+  'toast.backupReplaced': 'Meal data replaced: {logs} logs · {foods} foods',
 
   'meal.breakfast': 'Breakfast',
   'meal.lunch': 'Lunch',
@@ -324,6 +347,19 @@ const en: Record<MessageKey, string> = {
   'settings.language': 'Language',
   'settings.languageSv': 'Svenska',
   'settings.languageEn': 'English',
+  'settings.backup': 'Meal data',
+  'settings.backupLede':
+    'Export a JSON file of your meals, My foods, targets, and templates. Import restores them on this phone.',
+  'settings.exportBackup': 'Export JSON',
+  'settings.importMerge': 'Import JSON (merge)',
+  'settings.importReplace': 'Replace all from file…',
+  'settings.importReplaceConfirm':
+    'This deletes current rows in each store included in the file (meals, foods, targets, templates) and writes the file. Stores omitted from the file are left as they are. This cannot be undone. Continue?',
+  'settings.backupSafariTip':
+    'When you update the Home Screen app or hard-refresh, do not use Safari’s “Clear Website Data” — that deletes your food logs. Export a backup first.',
+  'settings.backupDebug': '{dateCount} logs on {date} · {total} logs total',
+  'settings.backupDebugHint':
+    'If this day is empty but total is not 0, check the date on Today — logs were not wiped.',
 
   'flag.dairy_free': 'Dairy-free',
   'flag.no_bread': 'No soft bread',
@@ -392,6 +428,10 @@ const en: Record<MessageKey, string> = {
   'error.notObject': '{label} is missing or is not an object',
   'error.zipMissingExportXml': 'export.xml was not found in the zip file',
   'error.notHealthExport': 'File is not a Health export (xml or zip)',
+  'error.notRavintoBackup': 'File is not a Ravinto meal backup (schema: ravinto-backup)',
+  'error.unknownBackupVersion': 'Unknown backup schema_version (expected 1)',
+  'error.backupMissingArray': 'Backup {label} must be an array',
+  'error.backupMissingId': 'Backup {label} is missing an id',
 };
 
 export const STRINGS: Record<Locale, Record<MessageKey, string>> = { sv, en };

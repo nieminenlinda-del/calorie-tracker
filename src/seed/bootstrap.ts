@@ -9,7 +9,15 @@ import { SEED_TEMPLATES } from './templates';
 
 export const SEED_VERSION = 5;
 
-async function pruneNonSeedCatalog(): Promise<void> {
+/**
+ * Removes leftover non-seed catalog foods (e.g. invented MFP guesses).
+ * Quick Add foods (`quick` tag) and Open Food Facts scans (`barcode`) are kept.
+ *
+ * Never touches `food_logs`. Meal history is independent of the catalog;
+ * log rows already snapshot macros at save time. Do not call `store.clear()`,
+ * `deleteDatabase`, or otherwise wipe logs from bootstrap / seed / migrate.
+ */
+export async function pruneNonSeedCatalog(): Promise<void> {
   const seedIds = new Set(SEED_FOODS.map((food) => food.id));
   const existing = await foodsRepo.getAll();
   const stale = existing
