@@ -34,4 +34,9 @@ export const templatesRepo = {
     const db = await getDb();
     await db.delete('meal_templates', id);
   },
+
+  async clear(): Promise<void> {
+    const db = await getDb();
+    await db.clear('meal_templates');
+  },
 };

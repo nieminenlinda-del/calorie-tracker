@@ -34,6 +34,11 @@ export const targetsRepo = {
     return created;
   },
 
+  async clear(): Promise<void> {
+    const db = await getDb();
+    await db.clear('user_targets');
+  },
+
   async save(patch: Partial<Omit<UserTargets, 'id' | 'timezone'>>): Promise<UserTargets> {
     const current = await this.get();
     const next: UserTargets = {

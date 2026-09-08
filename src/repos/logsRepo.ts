@@ -14,10 +14,25 @@ export const logsRepo = {
     return logs.sort((a, b) => a.created_at.localeCompare(b.created_at));
   },
 
-  async getRecent(limit = 40): Promise<FoodLog[]> {
+  async getAll(): Promise<FoodLog[]> {
     const db = await getDb();
-    const all = await db.getAll('food_logs');
+    const logs = await db.getAll('food_logs');
+    return logs.sort((a, b) => a.created_at.localeCompare(b.created_at));
+  },
+
+  async getRecent(limit = 40): Promise<FoodLog[]> {
+    const all = await this.getAll();
     return all.sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, limit);
+  },
+
+  async count(): Promise<number> {
+    const db = await getDb();
+    return db.count('food_logs');
+  },
+
+  async countByDate(date: string): Promise<number> {
+    const db = await getDb();
+    return db.countFromIndex('food_logs', 'by-date', date);
   },
 
   async put(log: FoodLog): Promise<void> {
@@ -35,5 +50,10 @@ export const logsRepo = {
   async delete(id: string): Promise<void> {
     const db = await getDb();
     await db.delete('food_logs', id);
+  },
+
+  async clear(): Promise<void> {
+    const db = await getDb();
+    await db.clear('food_logs');
   },
 };
