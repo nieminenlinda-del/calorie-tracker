@@ -64,6 +64,6 @@ Barcode scanning and Open Food Facts lookup live on the add-food page:
 
 1. Optional `barcode` on `Food` with a `by-barcode` IndexedDB index.
 2. `src/barcode/` looks up the local catalog first, then Open Food Facts, and maps hits to the same `Food` shape.
-3. Camera UI uses native `BarcodeDetector` when the browser has it, otherwise `html5-qrcode`. Log rows stay snapshots so offline totals never depend on OFF.
+3. Camera UI uses native `BarcodeDetector` when the browser has it, otherwise `html5-qrcode`. iPhone Safari and home-screen PWAs always take html5-qrcode; the reader is started only after that container is visible and has size, with `{ facingMode: 'environment' }` (not `{ ideal }`, which html5-qrcode rejects before `getUserMedia`). Log rows stay snapshots so offline totals never depend on OFF.
 
 Unknown barcodes, permission problems, and network failures fall through to Quick Add. New products are saved like Quick Add (`quick` tag + barcode) so they survive bootstrap and show up in My foods.
