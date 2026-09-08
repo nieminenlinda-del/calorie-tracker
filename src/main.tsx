@@ -2,12 +2,14 @@ import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';
 import App from './App';
+import { requestPersistentStorage } from './db/persistentStorage';
 import { initLocale, t } from './i18n/locale';
 import { bootstrapDb } from './seed/bootstrap';
 import './index.css';
 
 initLocale();
 registerSW({ immediate: true });
+requestPersistentStorage();
 
 function Root() {
   const [ready, setReady] = useState(false);

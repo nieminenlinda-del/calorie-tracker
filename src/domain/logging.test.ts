@@ -4,8 +4,9 @@ import { resetDbConnection } from '../db/database';
 import { foodsRepo } from '../repos/foodsRepo';
 import { logsRepo } from '../repos/logsRepo';
 import { macrosPer100g } from './macros';
-import { isQuickFood, logCustomFood, logQuickAddFood, QUICK_FOOD_TAG } from './logging';
+import { isQuickFood, logCustomFood, logQuickAddFood, groupLogsByMealSlot, QUICK_FOOD_TAG } from './logging';
 import { SEED_FOODS } from '../seed/foods';
+import type { FoodLog } from './types';
 
 async function deleteRavinto(): Promise<void> {
   await resetDbConnection();
@@ -145,5 +146,51 @@ describe('logQuickAddFood', () => {
     const day = await logsRepo.getByDate('2026-09-07');
     expect(day[0].food_id).toBeUndefined();
     expect(day[0].custom_name).toBe('Omat kaurahiutaleet');
+  });
+});
+
+function sampleLog(slot: FoodLog['meal_slot'] | undefined, id: string): FoodLog {
+  return {
+    id,
+    date: '2026-09-08',
+    meal_slot: slot as FoodLog['meal_slot'],
+    custom_name: id,
+    amount: 50,
+    unit: 'g',
+    kcal: 100,
+    protein: 10,
+    carbs: 8,
+    fat: 2,
+    created_at: '2026-09-08T08:00:00.000Z',
+  };
+}
+
+describe('groupLogsByMealSlot', () => {
+  it('puts known slots into their meal buckets', () => {
+    const grouped = groupLogsByMealSlot([
+      sampleLog('breakfast', 'a'),
+      sampleLog('lunch', 'b'),
+      sampleLog('snack', 'c'),
+      sampleLog('dinner', 'd'),
+      sampleLog('evening_snack', 'e'),
+    ]);
+    expect(grouped.breakfast.map((log) => log.id)).toEqual(['a']);
+    expect(grouped.lunch.map((log) => log.id)).toEqual(['b']);
+    expect(grouped.snack.map((log) => log.id)).toEqual(['c']);
+    expect(grouped.dinner.map((log) => log.id)).toEqual(['d']);
+    expect(grouped.evening_snack.map((log) => log.id)).toEqual(['e']);
+  });
+
+  it('skips missing or unknown meal slots so Today does not throw', () => {
+    const unknown = sampleLog('brunch' as FoodLog['meal_slot'], 'bad');
+    const missing = { ...sampleLog('lunch', 'no-slot') };
+    delete (missing as { meal_slot?: FoodLog['meal_slot'] }).meal_slot;
+
+    expect(() => groupLogsByMealSlot([unknown, missing, sampleLog('dinner', 'ok')])).not.toThrow();
+    const grouped = groupLogsByMealSlot([unknown, missing, sampleLog('dinner', 'ok')]);
+    expect(grouped.breakfast).toEqual([]);
+    expect(grouped.lunch).toEqual([]);
+    expect(grouped.dinner.map((log) => log.id)).toEqual(['ok']);
+    expect(Object.values(grouped).flat().map((log) => log.id)).toEqual(['ok']);
   });
 });

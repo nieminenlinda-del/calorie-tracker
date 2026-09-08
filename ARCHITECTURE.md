@@ -58,6 +58,8 @@ Calendar days use `Europe/Helsinki` (`src/domain/dates.ts`). Logs key off `YYYY-
 
 `vite-plugin-pwa` injects a service worker (precache + SPA navigate fallback) and a standalone manifest. Installable on iOS/Android via Add to Home Screen.
 
+On start, Ravinto calls `navigator.storage?.persist?.()` best-effort (result ignored; iOS WebKit may grant, deny, or decide silently). Service worker updates do **not** clear IndexedDB. The iOS Home Screen PWA has a **separate** data store from Safari tabs — deleting and re-adding the icon starts an empty database. Use Export JSON before major troubleshooting.
+
 ## Phase 2
 
 Barcode scanning and Open Food Facts lookup live on the add-food page:

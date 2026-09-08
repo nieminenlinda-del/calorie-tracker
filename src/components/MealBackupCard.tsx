@@ -114,6 +114,7 @@ export function MealBackupCard() {
       {error ? <p className="health-error">{error}</p> : null}
 
       <p className="notice">{t('settings.backupSafariTip')}</p>
+      <p className="notice">{t('settings.backupIosPwaTip')}</p>
       <p className="debug-meta">
         {t('settings.backupDebug', {
           dateCount: logs.length,
