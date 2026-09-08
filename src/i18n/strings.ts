@@ -141,6 +141,8 @@ const sv = {
     'Detta raderar nuvarande rader i varje tabell som finns i filen (måltider, livsmedel, mål, mallar) och skriver filens innehåll. Tabeller som saknas i filen lämnas. Det går inte att ångra. Fortsätta?',
   'settings.backupSafariTip':
     'När du uppdaterar hemskärmsappen eller gör en hård uppdatering: använd inte Safaris ”Rensa webbplatsdata” — då raderas matloggarna. Exportera en säkerhetskopia först.',
+  'settings.backupIosPwaTip':
+    'Hemskärmsappen på iOS har en egen databas, skild från Safari-flikar. Ta inte bort och lägg till ikonen igen — då får du en tom databas. Exportera JSON innan du felsöker på allvar.',
   'settings.backupDebug': '{dateCount} loggar {date} · {total} loggar totalt',
   'settings.backupDebugHint':
     'Om den här dagen är tom men totalt inte är 0, kolla datumet på Idag — loggarna har inte raderats.',
@@ -357,6 +359,8 @@ const en: Record<MessageKey, string> = {
     'This deletes current rows in each store included in the file (meals, foods, targets, templates) and writes the file. Stores omitted from the file are left as they are. This cannot be undone. Continue?',
   'settings.backupSafariTip':
     'When you update the Home Screen app or hard-refresh, do not use Safari’s “Clear Website Data” — that deletes your food logs. Export a backup first.',
+  'settings.backupIosPwaTip':
+    'The iOS Home Screen app keeps a separate data store from Safari tabs. Do not delete and re-add the Home Screen icon — you will get an empty database. Export JSON before major troubleshooting.',
   'settings.backupDebug': '{dateCount} logs on {date} · {total} logs total',
   'settings.backupDebugHint':
     'If this day is empty but total is not 0, check the date on Today — logs were not wiped.',

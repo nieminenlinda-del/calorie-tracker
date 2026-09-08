@@ -119,4 +119,17 @@ describe('locale', () => {
     setLocale('sv');
     expect(logLabel({ food_id: 'missing' } as never, [])).toBe('Okänd');
   });
+
+  it('explains that the iOS Home Screen PWA has a separate data store', () => {
+    initLocale('en');
+    expect(t('settings.backupIosPwaTip')).toMatch(/Home Screen/i);
+    expect(t('settings.backupIosPwaTip')).toMatch(/Safari tabs/i);
+    expect(t('settings.backupIosPwaTip')).toMatch(/empty database/i);
+    expect(t('settings.backupIosPwaTip')).toMatch(/Export JSON/i);
+    setLocale('sv');
+    expect(t('settings.backupIosPwaTip')).toMatch(/Hemskärmsappen/i);
+    expect(t('settings.backupIosPwaTip')).toMatch(/Safari-flikar/i);
+    expect(t('settings.backupIosPwaTip')).toMatch(/tom databas/i);
+    expect(t('settings.backupIosPwaTip')).toMatch(/Exportera JSON/i);
+  });
 });

@@ -1,8 +1,18 @@
 import { macrosFromCustom, macrosPer100g, scaleFoodMacros } from '../domain/macros';
-import type { Food, FoodLog, MealSlot, MealTemplate } from '../domain/types';
+import { isMealSlot, MEAL_SLOTS, type Food, type FoodLog, type MealSlot, type MealTemplate } from '../domain/types';
 import { logsRepo } from '../repos/logsRepo';
 import { foodsRepo } from '../repos/foodsRepo';
 import { templatesRepo } from '../repos/templatesRepo';
+
+/** Groups logs into known meal slots. Unknown or missing slots are skipped so Today cannot crash. */
+export function groupLogsByMealSlot<T extends { meal_slot?: unknown }>(logs: T[]): Record<MealSlot, T[]> {
+  const grouped = Object.fromEntries(MEAL_SLOTS.map((slot) => [slot, [] as T[]])) as Record<MealSlot, T[]>;
+  for (const log of logs) {
+    if (!isMealSlot(log.meal_slot)) continue;
+    grouped[log.meal_slot].push(log);
+  }
+  return grouped;
+}
 
 function newId(): string {
   return crypto.randomUUID();

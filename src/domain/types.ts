@@ -4,6 +4,10 @@ export type MealSlot = 'breakfast' | 'lunch' | 'snack' | 'dinner' | 'evening_sna
 
 export const MEAL_SLOTS: MealSlot[] = ['breakfast', 'lunch', 'snack', 'dinner', 'evening_snack'];
 
+export function isMealSlot(value: unknown): value is MealSlot {
+  return typeof value === 'string' && (MEAL_SLOTS as readonly string[]).includes(value);
+}
+
 export type DietFlag =
   | 'dairy_free'
   | 'no_bread'

@@ -4,7 +4,7 @@ import { ActiveEnergyCard } from '../components/ActiveEnergyCard';
 import { MealSection } from '../components/MealSection';
 import { MacroSummary } from '../components/MacroSummary';
 import { addDays, formatHelsinkiDate, isToday, previousDay } from '../domain/dates';
-import { applyTemplate, copyLogsToDate } from '../domain/logging';
+import { applyTemplate, copyLogsToDate, groupLogsByMealSlot } from '../domain/logging';
 import { MEAL_SLOTS, type MealSlot } from '../domain/types';
 import { TRAINING_DAY_TEMPLATES } from '../seed/templates';
 import { mealSlotLabel, useLanguage } from '../i18n';
@@ -18,14 +18,7 @@ export function TodayPage() {
   const toast = useToast();
   const { t } = useLanguage();
 
-  const bySlot = useMemo(() => {
-    const grouped = Object.fromEntries(MEAL_SLOTS.map((slot) => [slot, [] as typeof logs])) as Record<
-      MealSlot,
-      typeof logs
-    >;
-    for (const log of logs) grouped[log.meal_slot].push(log);
-    return grouped;
-  }, [logs]);
+  const bySlot = useMemo(() => groupLogsByMealSlot(logs), [logs]);
 
   async function copyYesterday() {
     const sourceDate = previousDay(date);
