@@ -193,7 +193,7 @@ const sv = {
     'Health importerad: {inserted} nya, {duplicates} dubbletter, {days} dagar',
   'health.mfpEmpty': 'CSV:n innehöll inga måltider. Använd en nutrition.csv-export.',
   'health.shortcutsHint':
-    'Shortcuts: iCloud Drive → Linda Health → {file} (daglig synk). Health-export: export.zip eller export.xml. Samma {db}-databas som i Linda Lift — importera en gång från antingen eller.',
+    'Shortcuts: iCloud Drive → Linda Health → {file} (daglig synk; iOS Save File tar ofta bort .json). Health-export: export.zip eller export.xml. Samma {db}-databas som i Linda Lift — importera en gång från antingen eller.',
   'health.mfpHint':
     'MFP: {file} (måltidsnivå). Ny import ersätter tidigare MFP-rader för den dagen; egna loggar lämnas. Exercise/measurement-export läses inte.',
   'health.notImported': 'inte importerad',
@@ -411,7 +411,7 @@ const en: Record<MessageKey, string> = {
     'Health imported: {inserted} new, {duplicates} duplicates, {days} days',
   'health.mfpEmpty': 'CSV contained no meals. Use a nutrition.csv export.',
   'health.shortcutsHint':
-    'Shortcuts: iCloud Drive → Linda Health → {file} (daily sync). Health export: export.zip or export.xml. Same {db} database as Linda Lift — import once from either.',
+    'Shortcuts: iCloud Drive → Linda Health → {file} (daily sync; iOS Save File often strips .json). Health export: export.zip or export.xml. Same {db} database as Linda Lift — import once from either.',
   'health.mfpHint':
     'MFP: {file} (meal level). Re-import replaces earlier MFP rows for that day; your own logs stay. Exercise/measurement exports are not read.',
   'health.notImported': 'not imported',

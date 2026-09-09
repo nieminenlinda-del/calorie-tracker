@@ -6,7 +6,10 @@ export {
   ingestShortcutFile,
   ingestShortcutJson,
   isShortcutJsonFile,
+  looksLikeJsonText,
   parseShortcutJson,
+  shouldImportAsShortcutJson,
+  SHORTCUT_JSON_ACCEPT,
   SHORTCUT_SCHEMA,
 } from './importShortcutJson';
 export { ingestHealthBytes, ingestHealthFile, ingestHealthXml } from './ingest';

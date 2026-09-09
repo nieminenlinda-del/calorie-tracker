@@ -8,7 +8,13 @@ import { appleDateToIso } from './xml';
 export const SHORTCUT_SCHEMA = 'linda-health-shortcut';
 export const SHORTCUT_SCHEMA_VERSION = 1;
 
+/** iOS “Save File” strips `.json`; do not hard-filter the picker to that extension. */
+export const SHORTCUT_JSON_ACCEPT = '.json,application/json,text/json,text/plain,*/*';
+
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const JSON_MIME = new Set(['application/json', 'text/json']);
+const NON_JSON_NAME = /\.(zip|xml|csv)$/i;
+const NON_JSON_TYPE = /zip|xml|csv/i;
 
 export class ShortcutImportError extends Error {
   constructor(message: string) {
@@ -17,11 +23,45 @@ export class ShortcutImportError extends Error {
   }
 }
 
-export function isShortcutJsonFile(file: Pick<File, 'name' | 'type'>): boolean {
-  const name = file.name.toLowerCase();
-  if (name.endsWith('.json')) return true;
+function fileBaseName(name: string): string {
+  const normalized = name.replace(/\\/g, '/');
+  return normalized.slice(normalized.lastIndexOf('/') + 1).toLowerCase();
+}
+
+/** True when the text starts like a JSON object or array (BOM / whitespace ignored). */
+export function looksLikeJsonText(text: string): boolean {
+  const stripped = text.replace(/^\uFEFF/, '').trimStart();
+  return stripped.startsWith('{') || stripped.startsWith('[');
+}
+
+function isClearlyNotJsonFile(file: Pick<File, 'name' | 'type'>): boolean {
+  const base = fileBaseName(file.name);
+  if (NON_JSON_NAME.test(base)) return true;
   const type = file.type.toLowerCase();
-  return type === 'application/json' || type === 'text/json';
+  return type !== '' && NON_JSON_TYPE.test(type);
+}
+
+export function isShortcutJsonFile(file: Pick<File, 'name' | 'type'>): boolean {
+  if (isClearlyNotJsonFile(file)) return false;
+  const base = fileBaseName(file.name);
+  if (base.endsWith('.json')) return true;
+  // iOS Save File leaves the Shortcut payload named `linda-health-shortcut` (no extension).
+  if (base === SHORTCUT_SCHEMA) return true;
+  return JSON_MIME.has(file.type.toLowerCase());
+}
+
+export async function fileLooksLikeJson(file: Pick<Blob, 'slice'>): Promise<boolean> {
+  const head = await file.slice(0, 512).text();
+  return looksLikeJsonText(head);
+}
+
+/** Route by MIME / known name when possible; otherwise sniff JSON content. */
+export async function shouldImportAsShortcutJson(
+  file: Pick<File, 'name' | 'type'> & Pick<Blob, 'slice'>,
+): Promise<boolean> {
+  if (isClearlyNotJsonFile(file)) return false;
+  if (isShortcutJsonFile(file)) return true;
+  return fileLooksLikeJson(file);
 }
 
 export interface ShortcutWorkoutInput {
