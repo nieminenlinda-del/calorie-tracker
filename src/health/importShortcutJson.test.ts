@@ -6,10 +6,14 @@ import 'fake-indexeddb/auto';
 import { resetHealthDbConnection } from '../db/healthDatabase';
 import { getDailyActiveEnergy, healthSamplesRepo } from '../repos/healthRepo';
 import {
+  ingestShortcutFile,
   ingestShortcutJson,
   isShortcutJsonFile,
+  looksLikeJsonText,
   parseShortcutJson,
+  SHORTCUT_JSON_ACCEPT,
   SHORTCUT_SCHEMA,
+  shouldImportAsShortcutJson,
   workoutActivityTypeFromShortcut,
 } from './importShortcutJson';
 import { HEALTH_DB_NAME } from './types';
@@ -31,12 +35,44 @@ afterEach(async () => {
   await deleteHealthDb();
 });
 
+function shortcutFile(name: string, contents: string, type = ''): File {
+  return new File([contents], name, { type });
+}
+
 describe('Shortcuts JSON parse', () => {
-  it('routes .json files to the Shortcuts importer', () => {
+  it('routes by .json name, JSON MIME type, or the extension-less iOS Save File name', () => {
     expect(isShortcutJsonFile({ name: 'linda-health-shortcut.json', type: '' })).toBe(true);
+    expect(isShortcutJsonFile({ name: 'linda-health-shortcut', type: '' })).toBe(true);
     expect(isShortcutJsonFile({ name: 'export.xml', type: 'text/xml' })).toBe(false);
     expect(isShortcutJsonFile({ name: 'export.zip', type: 'application/zip' })).toBe(false);
     expect(isShortcutJsonFile({ name: 'drop', type: 'application/json' })).toBe(true);
+    expect(SHORTCUT_JSON_ACCEPT).toContain('*/*');
+    expect(SHORTCUT_JSON_ACCEPT).not.toBe('.json,application/json');
+  });
+
+  it('sniffs JSON content when the name has no extension and no MIME type', async () => {
+    expect(looksLikeJsonText(`\uFEFF  ${FIXTURE_JSON}`)).toBe(true);
+    expect(looksLikeJsonText('not json')).toBe(false);
+    await expect(
+      shouldImportAsShortcutJson(shortcutFile('linda-health-shortcut', FIXTURE_JSON)),
+    ).resolves.toBe(true);
+    await expect(
+      shouldImportAsShortcutJson(
+        shortcutFile('drop', FIXTURE_JSON, ''),
+      ),
+    ).resolves.toBe(true);
+    await expect(
+      shouldImportAsShortcutJson(shortcutFile('linda-health-shortcut.json', FIXTURE_JSON, 'application/json')),
+    ).resolves.toBe(true);
+    await expect(
+      shouldImportAsShortcutJson(shortcutFile('linda-health-shortcut', 'this is not json')),
+    ).resolves.toBe(true);
+    await expect(
+      shouldImportAsShortcutJson(shortcutFile('notes', 'this is not json')),
+    ).resolves.toBe(false);
+    await expect(
+      shouldImportAsShortcutJson(shortcutFile('export.zip', FIXTURE_JSON, 'application/zip')),
+    ).resolves.toBe(false);
   });
 
   it('maps human workout names to HKWorkoutActivityType*', () => {
@@ -164,5 +200,30 @@ describe('Shortcuts JSON ingest into linda-health', () => {
     );
     expect(workouts).toHaveLength(1);
     expect(workouts[0]?.value).toBe(340);
+  });
+
+  it('imports a valid payload named linda-health-shortcut with or without .json', async () => {
+    const untitled = await ingestShortcutFile(
+      shortcutFile('linda-health-shortcut', FIXTURE_JSON),
+    );
+    expect(untitled.days).toBe(2);
+    expect(await getDailyActiveEnergy('2026-09-03')).toMatchObject({ active_kcal: 487 });
+
+    await deleteHealthDb();
+
+    const dotted = await ingestShortcutFile(
+      shortcutFile('linda-health-shortcut.json', FIXTURE_JSON, 'application/json'),
+    );
+    expect(dotted.days).toBe(2);
+    expect(await getDailyActiveEnergy('2026-09-02')).toMatchObject({ active_kcal: 180.5 });
+  });
+
+  it('rejects non-JSON garbage with a clear error even when the iOS name has no extension', async () => {
+    await expect(
+      ingestShortcutFile(shortcutFile('linda-health-shortcut', 'this is not json')),
+    ).rejects.toThrow(/valid JSON/i);
+    await expect(
+      ingestShortcutFile(shortcutFile('linda-health-shortcut', '<HealthData/>')),
+    ).rejects.toThrow(/valid JSON/i);
   });
 });

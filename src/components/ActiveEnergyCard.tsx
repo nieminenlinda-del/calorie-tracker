@@ -2,7 +2,11 @@ import { useRef, useState } from 'react';
 import { formatKcal } from '../domain/macros';
 import { formatAdjustmentHint } from '../domain/energyTarget';
 import { importHealthFile } from '../health/importHealth';
-import { ingestShortcutFile, isShortcutJsonFile } from '../health/importShortcutJson';
+import {
+  ingestShortcutFile,
+  SHORTCUT_JSON_ACCEPT,
+  shouldImportAsShortcutJson,
+} from '../health/importShortcutJson';
 import { ingestMfpNutritionCsv } from '../health/mfp';
 import { isTrainingDay, trainingDayLabel } from '../health/trainingDay';
 import type { DailyActiveEnergy, IngestProgress } from '../health/types';
@@ -81,7 +85,7 @@ export function ActiveEnergyCard({
 
   async function onFile(file: File | undefined) {
     if (!file) return;
-    if (isShortcutJsonFile(file)) {
+    if (await shouldImportAsShortcutJson(file)) {
       await onShortcutFile(file);
       if (inputRef.current) inputRef.current.value = '';
       return;
@@ -148,7 +152,7 @@ export function ActiveEnergyCard({
           <input
             ref={inputRef}
             type="file"
-            accept=".zip,.xml,.json,application/zip,text/xml,application/xml,application/json"
+            accept=".zip,.xml,.json,application/zip,text/xml,application/xml,application/json,text/plain,*/*"
             hidden
             onChange={(event) => void onFile(event.target.files?.[0])}
           />
@@ -163,7 +167,7 @@ export function ActiveEnergyCard({
           <input
             ref={shortcutInputRef}
             type="file"
-            accept=".json,application/json"
+            accept={SHORTCUT_JSON_ACCEPT}
             hidden
             onChange={(event) => void onShortcutFile(event.target.files?.[0])}
           />
@@ -196,7 +200,7 @@ export function ActiveEnergyCard({
           {error ? <p className="health-error">{error}</p> : null}
           <p className="muted">
             {t('health.shortcutsHint', {
-              file: 'linda-health-shortcut.json',
+              file: 'linda-health-shortcut',
               db: 'linda-health',
             })}
           </p>

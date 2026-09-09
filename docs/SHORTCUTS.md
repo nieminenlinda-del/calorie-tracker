@@ -6,16 +6,16 @@ Ravinto is a static GitHub Pages PWA. There is no server to POST into. The Short
 
 Polar Flow → Apple Health stays the single data pipe. Shortcuts only reads what Health already merged.
 
-**File:** iCloud Drive → `Linda Health` → `linda-health-shortcut.json` (overwrite the same name every run).
+**File:** iCloud Drive → `Linda Health` → `linda-health-shortcut` (iOS **Save File** often strips `.json`; Ravinto accepts either name). Overwrite the same file every run.
 
 ## In Ravinto after the file exists
 
 1. Open Ravinto (Safari or Home Screen).
 2. **Tavoitteet** (or **Tänään**) → **Tuo Shortcuts JSON**.
-3. Pick `linda-health-shortcut.json` from iCloud Drive → Linda Health.
+3. Pick `linda-health-shortcut` (or `linda-health-shortcut.json`) from iCloud Drive → Linda Health. Do not add a Rename-to-`.json` step in the Shortcut — that makes the whole run fail.
 4. Today’s **Aktiivinen kulutus** and the history table update. Latest import wins for that date.
 
-The Apple Health zip/xml picker also accepts `.json` and routes it to the same importer.
+The Apple Health zip/xml picker also accepts this file (with or without `.json`) and routes JSON to the same importer.
 
 ## JSON schema (what the Shortcut must write)
 
@@ -157,7 +157,7 @@ Use **Set Dictionary Value** / **Get Dictionary Value** if a Dictionary action i
    - File: **JSON Text**
    - Destination: **iCloud Drive**
    - Path / folder: `Linda Health`
-   - File name: `linda-health-shortcut.json`
+   - File name: `linda-health-shortcut.json` (iOS may save it as `linda-health-shortcut` with no extension — that is fine; do not Rename)
    - **Ask Where to Save**: Off
    - **Overwrite If File Exists**: On
 3. Optional: **Show Notification** “Linda Health Sync saved”.
@@ -177,7 +177,7 @@ Then each morning: open Ravinto → **Tuo Shortcuts JSON** → pick the overwrit
 ### 9. First-run check
 
 1. Run **Linda Health Sync** once by hand.
-2. Files → iCloud Drive → Linda Health → open `linda-health-shortcut.json`.
+2. Files → iCloud Drive → Linda Health → open `linda-health-shortcut` (or `.json`).
 3. Confirm `"schema": "linda-health-shortcut"` and yesterday’s `days[0].date` / `active_kcal`.
 4. Import in Ravinto. The history row for that date should show the same kcal.
 
